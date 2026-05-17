@@ -234,7 +234,7 @@
 
         .setting-row { margin-bottom: 22px; text-align: left; }
         .setting-row label { display: block; font-weight: 400; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-sub); }
-        .setting-row input[type="range"] {
+        .setting-row input type="range" {
             width: 100%;
             accent-color: var(--primary-color);
             background: rgba(255,255,255,0.1);
@@ -276,7 +276,7 @@
         .progress-ring__background { stroke: var(--circle-bg); }
         .progress-ring__circle { 
             stroke: var(--primary-color); 
-            transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+            transition: stroke-dashoffset 0.2s linear, stroke 0.5s ease;
             filter: drop-shadow(0px 0px 8px var(--primary-color));
         }
         .timer-text { z-index: 1; }
@@ -399,8 +399,7 @@
 <div id="log-modal" class="modal-overlay hidden">
     <div class="modal-content log-modal-content">
         <h2>📊 過去の全作業タイマー記録</h2>
-        <div id="log-scroll-area" class="log-scroll-area">
-            </div>
+        <div id="log-scroll-area" class="log-scroll-area"></div>
         <button id="close-log" class="close-btn">閉じる</button>
         <button id="danger-reset-btn" class="danger-btn">データを全消去（初期化）する</button>
     </div>
@@ -562,8 +561,19 @@
 
     const WORK_TIME = 25 * 60;
     const BREAK_TIME = 5 * 60;
-    let timeLeft = WORK_TIME; let isWorking = true; let timerId = null;
-    let historyData = []; let currentTaskName = ""; let startTimeStamp = null; let actualWorkSeconds = 0;
+    
+    // 【🌟バックグラウンド動作改善のコア変数】
+    let isWorking = true;
+    let timerId = null;
+    let historyData = [];
+    let currentTaskName = "";
+    
+    // 絶対時間管理用の変数
+    let startTimeStamp = null;       // 今回のポモドーロ自体の開始絶対時刻
+    let segmentStartTime = null;     // スタートまたは一時停止解除を押した瞬間
+    let baseTimeLeft = WORK_TIME;    // 今回のセグメントが始まった時点での残り秒数
+    let actualWorkSeconds = 0;       // 合計で何秒間作業したか
+    let totalTimeAccumulatedBeforePause = 0; // 一時停止するまでに蓄積された作業秒数
 
     function getTodayString() {
         const now = new Date();
@@ -684,11 +694,13 @@
     }
     setInterval(updateClock, 1000); updateClock();
 
-    function updateDisplay() {
-        let minutes = Math.floor(timeLeft / 60); let seconds = timeLeft % 60;
+    // 表示を更新（引数に「現在の残り秒数」を取るように修正）
+    function updateDisplay(secondsLeft) {
+        if (secondsLeft < 0) secondsLeft = 0;
+        let minutes = Math.floor(secondsLeft / 60); let seconds = Math.floor(secondsLeft % 60);
         timerDisplay.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
         const total = isWorking ? WORK_TIME : BREAK_TIME;
-        circle.style.strokeDashoffset = circumference - ((timeLeft / total) * circumference);
+        circle.style.strokeDashoffset = circumference - ((secondsLeft / total) * circumference);
     }
 
     function switchMode() {
@@ -696,7 +708,6 @@
         let delayMs = isWorking ? sounds[workSoundType]() : sounds[breakSoundType]();
 
         if (isWorking) {
-            // もし何らかの理由でstartTimeStampが取れていなければ、現在の25分前から開始したと仮定して計算
             if (!startTimeStamp) {
                 startTimeStamp = new Date(Date.now() - WORK_TIME * 1000);
                 actualWorkSeconds = WORK_TIME;
@@ -708,12 +719,10 @@
             const timeRangeStr = `${formatTime(startTimeStamp)}~${formatTime(endTime)} (${minutesPassed}分間)`;
             const todayStr = getTodayString();
 
-            // 1. 今日のリアルタイム履歴に追加
             historyData.unshift({ task: currentTaskName || '無題のタスク', timeRange: timeRangeStr, review: '' });
             localStorage.setItem('pomo_history', JSON.stringify(historyData));
             localStorage.setItem('pomo_date', todayStr);
 
-            // 2. 過去すべての永続ログへの追加処理
             let allLogs = JSON.parse(localStorage.getItem('pomo_all_logs') || '[]');
             let dayGroup = allLogs.find(g => g.date === todayStr);
             
@@ -726,7 +735,6 @@
             }
             localStorage.setItem('pomo_all_logs', JSON.stringify(allLogs));
 
-            // 3. ダッシュボード用累計データの更新
             localStorage.setItem('pomo_total_count', parseInt(localStorage.getItem('pomo_total_count') || '0') + 1);
             localStorage.setItem('pomo_total_minutes', parseInt(localStorage.getItem('pomo_total_minutes') || '0') + minutesPassed);
 
@@ -739,15 +747,17 @@
         }
 
         isWorking = !isWorking;
-        timeLeft = isWorking ? WORK_TIME : BREAK_TIME;
+        baseTimeLeft = isWorking ? WORK_TIME : BREAK_TIME;
         document.body.className = isWorking ? "mode-work" : "mode-break";
         statusDisplay.textContent = isWorking ? "FOCUS" : "BREAK";
         
-        // 【🌟修正コア箇所】次の周回（2週目など）の計測準備のためにデータを綺麗にリセット
+        // データの初期化
         startTimeStamp = null; 
+        segmentStartTime = null;
         actualWorkSeconds = 0;
+        totalTimeAccumulatedBeforePause = 0;
 
-        updateDisplay();
+        updateDisplay(baseTimeLeft);
         taskInput.disabled = false; 
         
         setTimeout(() => {
@@ -759,35 +769,73 @@
         if(audioCtx.state === 'suspended') audioCtx.resume(); 
         if (timerId !== null) return;
         
+        // 基準となる「開始（再開）した絶対時刻」をミリ秒で記録
+        segmentStartTime = Date.now();
+
         if (isWorking) {
             currentTaskName = taskInput.value || 'タスク未設定';
             currentTaskDisplay.textContent = `🔥 進行中: ${currentTaskName}`; 
             currentTaskDisplay.classList.remove('hidden');
             
-            // 【🌟修正コア箇所】1周目だけでなく、休憩明けの2周目・3周目のスタート時にも必ず新しく現在時刻をセットする
             if (!startTimeStamp) { 
                 startTimeStamp = new Date(); 
-                actualWorkSeconds = 0; 
             }
         }
         
         timerId = setInterval(() => {
-            if (timeLeft > 0) { 
-                timeLeft--; 
-                if (isWorking) actualWorkSeconds++; 
-                updateDisplay(); 
+            // 【🌟別タブ対策】「スタートボタンを押した時刻」と「今現在の時刻」の引き算で、正確な経過秒数を計算
+            const elapsedMilliseconds = Date.now() - segmentStartTime;
+            const elapsedSeconds = elapsedMilliseconds / 1000;
+            
+            // 正確な残りの秒数を算出
+            const currentLeft = baseTimeLeft - elapsedSeconds;
+            
+            if (isWorking) {
+                actualWorkSeconds = totalTimeAccumulatedBeforePause + elapsedSeconds;
+            }
+
+            if (currentLeft > 0) { 
+                updateDisplay(currentLeft); 
             } 
             else { 
-                clearInterval(timerId); // 次のモードに移る前にタイマーの進行を一度止める
+                clearInterval(timerId);
                 timerId = null;
                 switchMode(); 
             }
-        }, 1000);
+        }, 200); // 描画を滑らかにするため、少し短めの間隔で監視
+        
         if (isWorking) taskInput.disabled = true;
     }
 
-    function pauseTimer() { clearInterval(timerId); timerId = null; taskInput.disabled = false; }
-    function resetTimer() { pauseTimer(); isWorking = true; timeLeft = WORK_TIME; startTimeStamp = null; actualWorkSeconds = 0; document.body.className = "mode-work"; statusDisplay.textContent = "FOCUS"; currentTaskDisplay.classList.add('hidden'); taskInput.disabled = false; updateDisplay(); }
+    function pauseTimer() { 
+        if (timerId === null) return;
+        clearInterval(timerId); 
+        timerId = null; 
+        taskInput.disabled = false; 
+
+        // 一時停止した時点での「このセグメントの経過秒数」をベースの残り秒数から引いて確定させる
+        const elapsedSeconds = (Date.now() - segmentStartTime) / 1000;
+        baseTimeLeft = baseTimeLeft - elapsedSeconds;
+        
+        if (isWorking) {
+            totalTimeAccumulatedBeforePause += elapsedSeconds;
+        }
+    }
+    
+    function resetTimer() { 
+        pauseTimer(); 
+        isWorking = true; 
+        baseTimeLeft = WORK_TIME; 
+        startTimeStamp = null; 
+        segmentStartTime = null;
+        actualWorkSeconds = 0; 
+        totalTimeAccumulatedBeforePause = 0;
+        document.body.className = "mode-work"; 
+        statusDisplay.textContent = "FOCUS"; 
+        currentTaskDisplay.classList.add('hidden'); 
+        taskInput.disabled = false; 
+        updateDisplay(baseTimeLeft); 
+    }
 
     document.getElementById('view-logs-btn').addEventListener('click', () => {
         renderAllPermanentLogs();
@@ -807,7 +855,7 @@
     document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
     document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
-    loadSavedData(); updateDisplay();
+    loadSavedData(); updateDisplay(baseTimeLeft);
 </script>
 
 </body>
