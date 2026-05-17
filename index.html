@@ -169,7 +169,7 @@
         .modal-overlay.hidden .modal-content { transform: translateY(20px); }
         .modal-content h2 { margin-top: 0; font-size: 1.2rem; font-weight: 600; margin-bottom: 25px; letter-spacing: 1px; text-align: center; }
         
-        /* 履歴ログ専用のスクロールコンテナとデザイン */
+        /* 過去ログ専用のスクロールコンテナとデザイン */
         .log-modal-content {
             max-width: 450px;
         }
@@ -234,7 +234,7 @@
 
         .setting-row { margin-bottom: 22px; text-align: left; }
         .setting-row label { display: block; font-weight: 400; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-sub); }
-        .setting-row input type="range" {
+        .setting-row input[type="range"] {
             width: 100%;
             accent-color: var(--primary-color);
             background: rgba(255,255,255,0.1);
@@ -288,7 +288,7 @@
         
         /* コントロールボタン */
         .controls { display: flex; gap: 14px; justify-content: center; margin-bottom: 30px; }
-        button.btn-primary { flex: 1.3; padding: 15px; font-size: 0.95rem; font-weight: 600; letter-spacing: 1px; border: none; border-radius: 16px; cursor: pointer; background-color: var(--primary-color); color: white; box-shadow: 0 8px 24px rgba(255, 122, 61, 0.3); transition: all 0.2s ease; }
+        button.btn-primary { flex: 1.5; padding: 15px; font-size: 0.95rem; font-weight: 600; letter-spacing: 1px; border: none; border-radius: 16px; cursor: pointer; background-color: var(--primary-color); color: white; box-shadow: 0 8px 24px rgba(255, 122, 61, 0.3); transition: all 0.2s ease; }
         button.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(255, 122, 61, 0.4); }
         body.mode-break button.btn-primary { box-shadow: 0 8px 24px rgba(45, 212, 191, 0.3); }
         button.btn-secondary { flex: 1; padding: 15px; font-size: 0.95rem; font-weight: 400; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; cursor: pointer; background-color: rgba(255, 255, 255, 0.05); color: var(--text-main); transition: all 0.2s ease; backdrop-filter: blur(5px); }
@@ -435,8 +435,7 @@
     <div id="current-task-display" class="current-task-display hidden"></div>
 
     <div class="controls">
-        <button id="startBtn" class="btn-primary">スタート</button>
-        <button id="pauseBtn" class="btn-secondary">一時停止</button>
+        <button id="toggleBtn" class="btn-primary">スタート</button>
         <button id="resetBtn" class="btn-secondary">リセット</button>
     </div>
 
@@ -554,6 +553,7 @@
     const totalCountView = document.getElementById('stat-total-count');
     const totalTimeView = document.getElementById('stat-total-time');
     const logScrollArea = document.getElementById('log-scroll-area');
+    const toggleBtn = document.getElementById('toggleBtn'); // 統合ボタン
 
     const circle = document.querySelector('.progress-ring__circle');
     const radius = circle.r.baseVal.value; const circumference = radius * 2 * Math.PI;
@@ -562,18 +562,16 @@
     const WORK_TIME = 25 * 60;
     const BREAK_TIME = 5 * 60;
     
-    // 【🌟バックグラウンド動作改善のコア変数】
     let isWorking = true;
     let timerId = null;
     let historyData = [];
     let currentTaskName = "";
     
-    // 絶対時間管理用の変数
-    let startTimeStamp = null;       // 今回のポモドーロ自体の開始絶対時刻
-    let segmentStartTime = null;     // スタートまたは一時停止解除を押した瞬間
-    let baseTimeLeft = WORK_TIME;    // 今回のセグメントが始まった時点での残り秒数
-    let actualWorkSeconds = 0;       // 合計で何秒間作業したか
-    let totalTimeAccumulatedBeforePause = 0; // 一時停止するまでに蓄積された作業秒数
+    let startTimeStamp = null;       
+    let segmentStartTime = null;     
+    let baseTimeLeft = WORK_TIME;    
+    let actualWorkSeconds = 0;       
+    let totalTimeAccumulatedBeforePause = 0; 
 
     function getTodayString() {
         const now = new Date();
@@ -694,7 +692,6 @@
     }
     setInterval(updateClock, 1000); updateClock();
 
-    // 表示を更新（引数に「現在の残り秒数」を取るように修正）
     function updateDisplay(secondsLeft) {
         if (secondsLeft < 0) secondsLeft = 0;
         let minutes = Math.floor(secondsLeft / 60); let seconds = Math.floor(secondsLeft % 60);
@@ -742,16 +739,18 @@
             updateStatsDashboard();
             
             historyAccordion.open = true;
+            // 🌟 自動ループ時に次の作業にプレースホルダーや前回の文字が残るようにするか、空にするか
             taskInput.value = ''; localStorage.setItem('pomo_next_task', '');
             currentTaskDisplay.classList.add('hidden');
         }
 
+        // モード反転
         isWorking = !isWorking;
         baseTimeLeft = isWorking ? WORK_TIME : BREAK_TIME;
         document.body.className = isWorking ? "mode-work" : "mode-break";
         statusDisplay.textContent = isWorking ? "FOCUS" : "BREAK";
         
-        // データの初期化
+        // 変数初期化
         startTimeStamp = null; 
         segmentStartTime = null;
         actualWorkSeconds = 0;
@@ -760,16 +759,16 @@
         updateDisplay(baseTimeLeft);
         taskInput.disabled = false; 
         
+        // 🌟 自動で次のフェーズのタイマーを即時開始（全自動ループ）
         setTimeout(() => {
-            alert(!isWorking ? "お疲れ様です！下の履歴から振り返りを書いて休憩しましょう。" : "休憩終了！次の作業を始めましょう。");
-        }, delayMs + 200); 
+            startTimer();
+        }, delayMs + 500); 
     }
 
     function startTimer() {
         if(audioCtx.state === 'suspended') audioCtx.resume(); 
         if (timerId !== null) return;
         
-        // 基準となる「開始（再開）した絶対時刻」をミリ秒で記録
         segmentStartTime = Date.now();
 
         if (isWorking) {
@@ -780,14 +779,18 @@
             if (!startTimeStamp) { 
                 startTimeStamp = new Date(); 
             }
+        } else {
+            // 休憩開始時は進行中バッジを書き換える
+            currentTaskDisplay.textContent = `💤 休憩中...`;
+            currentTaskDisplay.classList.remove('hidden');
         }
         
+        // ボタンの表示状態を「一時停止」に更新
+        toggleBtn.textContent = "一時停止";
+
         timerId = setInterval(() => {
-            // 【🌟別タブ対策】「スタートボタンを押した時刻」と「今現在の時刻」の引き算で、正確な経過秒数を計算
             const elapsedMilliseconds = Date.now() - segmentStartTime;
             const elapsedSeconds = elapsedMilliseconds / 1000;
-            
-            // 正確な残りの秒数を算出
             const currentLeft = baseTimeLeft - elapsedSeconds;
             
             if (isWorking) {
@@ -802,7 +805,7 @@
                 timerId = null;
                 switchMode(); 
             }
-        }, 200); // 描画を滑らかにするため、少し短めの間隔で監視
+        }, 200); 
         
         if (isWorking) taskInput.disabled = true;
     }
@@ -813,12 +816,23 @@
         timerId = null; 
         taskInput.disabled = false; 
 
-        // 一時停止した時点での「このセグメントの経過秒数」をベースの残り秒数から引いて確定させる
         const elapsedSeconds = (Date.now() - segmentStartTime) / 1000;
         baseTimeLeft = baseTimeLeft - elapsedSeconds;
         
         if (isWorking) {
             totalTimeAccumulatedBeforePause += elapsedSeconds;
+        }
+
+        // ボタンの表示状態を「スタート」に更新
+        toggleBtn.textContent = "スタート";
+    }
+
+    // 🌟 統合ボタンのクリックイベント
+    function handleToggle() {
+        if (timerId === null) {
+            startTimer();
+        } else {
+            pauseTimer();
         }
     }
     
@@ -835,6 +849,7 @@
         currentTaskDisplay.classList.add('hidden'); 
         taskInput.disabled = false; 
         updateDisplay(baseTimeLeft); 
+        toggleBtn.textContent = "スタート"; // ボタンリセット
     }
 
     document.getElementById('view-logs-btn').addEventListener('click', () => {
@@ -851,8 +866,8 @@
         }
     });
 
-    document.getElementById('startBtn').addEventListener('click', startTimer);
-    document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
+    // リスナー登録
+    toggleBtn.addEventListener('click', handleToggle);
     document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
     loadSavedData(); updateDisplay(baseTimeLeft);
