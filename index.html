@@ -739,18 +739,17 @@
             updateStatsDashboard();
             
             historyAccordion.open = true;
-            // 🌟 自動ループ時に次の作業にプレースホルダーや前回の文字が残るようにするか、空にするか
             taskInput.value = ''; localStorage.setItem('pomo_next_task', '');
             currentTaskDisplay.classList.add('hidden');
         }
 
-        // モード反転
+        // モードを切り替え
         isWorking = !isWorking;
         baseTimeLeft = isWorking ? WORK_TIME : BREAK_TIME;
         document.body.className = isWorking ? "mode-work" : "mode-break";
         statusDisplay.textContent = isWorking ? "FOCUS" : "BREAK";
         
-        // 変数初期化
+        // 変数の初期化
         startTimeStamp = null; 
         segmentStartTime = null;
         actualWorkSeconds = 0;
@@ -759,7 +758,7 @@
         updateDisplay(baseTimeLeft);
         taskInput.disabled = false; 
         
-        // 🌟 自動で次のフェーズのタイマーを即時開始（全自動ループ）
+        // 🌟 自動で次のフェーズのタイマーを即時開始（完全全自動ループ）
         setTimeout(() => {
             startTimer();
         }, delayMs + 500); 
@@ -780,12 +779,11 @@
                 startTimeStamp = new Date(); 
             }
         } else {
-            // 休憩開始時は進行中バッジを書き換える
             currentTaskDisplay.textContent = `💤 休憩中...`;
             currentTaskDisplay.classList.remove('hidden');
         }
         
-        // ボタンの表示状態を「一時停止」に更新
+        // 🌟 ボタンのテキストを「一時停止」に切り替え
         toggleBtn.textContent = "一時停止";
 
         timerId = setInterval(() => {
@@ -823,11 +821,11 @@
             totalTimeAccumulatedBeforePause += elapsedSeconds;
         }
 
-        // ボタンの表示状態を「スタート」に更新
+        // 🌟 ボタンのテキストを「スタート」に切り替え
         toggleBtn.textContent = "スタート";
     }
 
-    // 🌟 統合ボタンのクリックイベント
+    // 🌟 ひとつのボタンでスタートと一時停止を切り替えるイベントハンドラー
     function handleToggle() {
         if (timerId === null) {
             startTimer();
@@ -849,7 +847,7 @@
         currentTaskDisplay.classList.add('hidden'); 
         taskInput.disabled = false; 
         updateDisplay(baseTimeLeft); 
-        toggleBtn.textContent = "スタート"; // ボタンリセット
+        toggleBtn.textContent = "スタート"; // ボタン表記を初期化
     }
 
     document.getElementById('view-logs-btn').addEventListener('click', () => {
@@ -866,7 +864,7 @@
         }
     });
 
-    // リスナー登録
+    // 各ボタンのイベントリスナーを登録
     toggleBtn.addEventListener('click', handleToggle);
     document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
