@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ポモドーロタイマー</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌀</text></svg>">
+
     <style>
         :root {
             --primary-color: #ff7a3d; 
@@ -78,20 +81,20 @@
             max-width: 450px;
             border-radius: 32px;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
-            padding: 45px 40px;
+            padding: 55px 40px 45px 40px; /* 上部にボタンを置くためpadding-topを調整 */
             text-align: center;
             z-index: 10;
             transition: background 0.3s ease;
         }
 
-        /* 設定ボタン（歯車マーク） */
+        /* 右上：設定ボタン（歯車マーク） */
         .settings-icon-btn {
             position: absolute;
             top: 25px;
             right: 25px;
             background: rgba(255, 255, 255, 0.15); 
             border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             color: #ffffff; 
             width: 38px;
@@ -111,6 +114,63 @@
             box-shadow: 0 0 15px var(--primary-color);
         }
 
+        /* 🌟 左上：過去の記録データを見る（アコーディオン化） 🌟 */
+        .history-logs-accordion {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            z-index: 20;
+            text-align: left;
+        }
+        .history-logs-accordion summary {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #ffffff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            list-style: none;
+        }
+        .history-logs-accordion summary::-webkit-details-marker { display: none; }
+        .history-logs-accordion summary:hover {
+            transform: scale(1.08);
+            background: var(--primary-color);
+            border-color: transparent;
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+        /* 展開したときの中身パネルの配置とデザイン */
+        .history-logs-dropdown {
+            position: absolute;
+            top: 48px;
+            left: 0;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            width: 340px;
+            max-height: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .history-logs-dropdown h3 {
+            margin: 0 0 15px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+
         /* 累積記録ダッシュボード */
         .stats-dashboard {
             display: flex;
@@ -119,6 +179,7 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 16px;
             padding: 12px 10px;
+            margin-top: 20px;
             margin-bottom: 20px;
         }
         .stats-item {
@@ -139,7 +200,7 @@
             color: var(--text-main);
         }
 
-        /* 設定モーダル & 履歴ログ専用モーダル */
+        /* 設定モーダル */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -169,12 +230,9 @@
         .modal-overlay.hidden .modal-content { transform: translateY(20px); }
         .modal-content h2 { margin-top: 0; font-size: 1.2rem; font-weight: 600; margin-bottom: 25px; letter-spacing: 1px; text-align: center; }
         
-        /* 過去ログ専用のスクロールコンテナとデザイン */
-        .log-modal-content {
-            max-width: 450px;
-        }
+        /* 過去ログエリアのスクロールエリアとデザイン */
         .log-scroll-area {
-            max-height: 380px;
+            flex: 1;
             overflow-y: auto;
             padding-right: 5px;
             text-align: left;
@@ -183,53 +241,53 @@
             margin-bottom: 20px;
         }
         .log-date-header {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--primary-color);
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 6px;
-            margin-bottom: 10px;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
         }
         .log-date-total {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-sub);
             font-weight: 400;
         }
         .log-item {
             background: rgba(255, 255, 255, 0.03);
-            padding: 10px 14px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
             border-left: 2px solid rgba(255,255,255,0.2);
         }
         .log-item-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .log-item-task {
             font-weight: 600;
             color: #ffffff;
         }
         .log-item-time {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-sub);
         }
         .log-item-review {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: rgba(255,255,255,0.5);
             font-style: italic;
-            margin-top: 4px;
+            margin-top: 2px;
             word-break: break-all;
         }
         .empty-log-msg {
             text-align: center;
             color: var(--text-sub);
-            font-size: 0.9rem;
-            padding: 30px 0;
+            font-size: 0.85rem;
+            padding: 20px 0;
         }
 
         .setting-row { margin-bottom: 22px; text-align: left; }
@@ -263,7 +321,7 @@
         /* デンジャーリセットボタン */
         .danger-btn {
             background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444;
-            padding: 8px; border-radius: 10px; font-size: 0.75rem; cursor: pointer; width: 100%; margin-top: 20px; transition: all 0.2s;
+            padding: 6px; border-radius: 8px; font-size: 0.7rem; cursor: pointer; width: 100%; margin-top: 12px; transition: all 0.2s;
         }
         .danger-btn:hover { background: rgba(239, 68, 68, 0.1); }
 
@@ -317,25 +375,6 @@
         .history-time-stamp { font-size: 0.75rem; color: var(--text-sub); white-space: nowrap; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 20px; font-variant-numeric: tabular-nums; }
         .history-review-input { width: 100%; height: 65px; padding: 12px; font-size: 0.85rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: white; resize: none; box-sizing: border-box; font-family: inherit; transition: all 0.3s; margin-top: 6px; }
         .history-review-input:focus { outline: none; border-color: var(--primary-color); }
-        
-        /* 過去データを見るボタン */
-        .view-logs-btn {
-            width: 100%;
-            padding: 14px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-main);
-            border-radius: 16px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            letter-spacing: 0.5px;
-        }
-        .view-logs-btn:hover {
-            background: rgba(255,255,255,0.12);
-            border-color: rgba(255,255,255,0.2);
-        }
 
         .hidden { display: none !important; }
 
@@ -396,16 +435,16 @@
     </div>
 </div>
 
-<div id="log-modal" class="modal-overlay hidden">
-    <div class="modal-content log-modal-content">
-        <h2>📊 過去の全作業タイマー記録</h2>
-        <div id="log-scroll-area" class="log-scroll-area"></div>
-        <button id="close-log" class="close-btn">閉じる</button>
-        <button id="danger-reset-btn" class="danger-btn">データを全消去（初期化）する</button>
-    </div>
-</div>
-
 <div class="card" id="timer-card">
+    <details id="history-logs-accordion" class="history-logs-accordion">
+        <summary title="過去のデータデータを見る">📊</summary>
+        <div class="history-logs-dropdown">
+            <h3>📊 過去の全作業記録</h3>
+            <div id="log-scroll-area" class="log-scroll-area"></div>
+            <button id="danger-reset-btn" class="danger-btn">データを全消去（初期化）する</button>
+        </div>
+    </details>
+
     <button class="settings-icon-btn" id="open-settings" title="設定を開く">⚙️</button>
 
     <div id="datetime-display" class="datetime"></div>
@@ -448,24 +487,20 @@
         <summary id="history-count">🏆 今日の達成履歴 (0回)</summary>
         <div id="history-list" class="history-list"></div>
     </details>
-
-    <button id="view-logs-btn" class="view-logs-btn">📊 過去の記録データを見る</button>
 </div>
 
 <script>
     const bgData = [
-        { url: "https://images.unsplash.com/photo-1505832018823-50331d70d237?q=80&w=2108&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 グレンフィナン高架橋（イギリス）" },
+        { url: "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1920&q=80", name: "📍 カッパドキアの熱気球（トルコ）" },
         { url: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1559&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxフォトページfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 セリャラントスフォスの滝（アイスランド）" },
         { url: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1920&q=80", name: "📍 サントリーニ島（ギリシャ）" },
-        { url: "https://images.unsplash.com/photo-1511300636408-a63a89df3482?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 ヴェストラホルン山（アイスランド）" },
-        { url: "https://images.unsplash.com/photo-1498429089284-41f8cf3ffd39?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 ヨセミテ国立公園（アメリカ）" },
+        { url: "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?auto=format&fit=crop&w=1920&q=80", name: "📍 伏見稲荷大社・千本鳥居（日本）" },
+        { url: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=1920&q=80", name: "📍 富士山と新倉山浅感公園（日本）" },
         { url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80", name: "📍 ヨセミテ国立公園（アメリカ）" },
         { url: "https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=1920&q=80", name: "📍 アルプスの山々とマッターホルン（スイス）" },
-        { url: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 ジアウ峠（イタリア）" },
-        { url: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1920&q=80", name: "📍 パリの街並み（フランス）" },
-        { url: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 ブライエス湖（イタリア）" },
+        { url: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1920&q=80", name: "📍 パリ・エッフェル塔の街並み（フランス）" },
+        { url: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1920&q=80", name: "📍 ロンドン・タワーブリッジ（イギリス）" },
         { url: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=1920&q=80", name: "📍 バンコク・ワットアルン（タイ）" },
-        { url: "https://images.unsplash.com/photo-1505699261378-c372af38134c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 星海広場（中国）" },
         { url: "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1920&q=80", name: "📍 タージ・マハル（インド）" }
     ];
 
@@ -519,7 +554,6 @@
 
     // --- 各種コントロール割り当て ---
     const modal = document.getElementById('settings-modal');
-    const logModal = document.getElementById('log-modal');
     const volumeSlider = document.getElementById('volume-slider');
     const opacitySlider = document.getElementById('opacity-slider');
     const workSoundSelect = document.getElementById('work-sound-select');
@@ -555,7 +589,8 @@
     const totalCountView = document.getElementById('stat-total-count');
     const totalTimeView = document.getElementById('stat-total-time');
     const logScrollArea = document.getElementById('log-scroll-area');
-    const toggleBtn = document.getElementById('toggleBtn'); // 統合ボタン
+    const toggleBtn = document.getElementById('toggleBtn');
+    const logsAccordion = document.getElementById('history-logs-accordion'); // 🌟
 
     const circle = document.querySelector('.progress-ring__circle');
     const radius = circle.r.baseVal.value; const circumference = radius * 2 * Math.PI;
@@ -619,6 +654,8 @@
         if (dayGroup && dayGroup.items[indexInDay]) {
             dayGroup.items[indexInDay].review = newReview;
             localStorage.setItem('pomo_all_logs', JSON.stringify(allLogs));
+            // 🌟 ドロップダウン展開中なら再描画して文字を同期
+            if(logsAccordion.open) renderAllPermanentLogs(); 
         }
     }
 
@@ -653,7 +690,7 @@
                 itemDiv.innerHTML = `
                     <div class="log-item-header">
                         <span class="log-item-task">✅ ${item.task}</span>
-                        <span class="log-item-time">${item.timeRange.split(' ')[0] || ''} (${item.minutes}分間)</span>
+                        <span class="log-item-time">${item.timeRange.split(' ')[0] || ''}</span>
                     </div>
                     ${item.review ? `<div class="log-item-review">📝 ${item.review}</div>` : ''}
                 `;
@@ -663,6 +700,13 @@
             logScrollArea.appendChild(groupDiv);
         });
     }
+
+    // 🌟 過去ログアコーディオンが開かれた時にデータを描画するリスナー
+    logsAccordion.addEventListener('toggle', () => {
+        if (logsAccordion.open) {
+            renderAllPermanentLogs();
+        }
+    });
 
     function loadSavedData() {
         const savedDate = localStorage.getItem('pomo_date');
@@ -745,13 +789,11 @@
             currentTaskDisplay.classList.add('hidden');
         }
 
-        // モードを切り替え
         isWorking = !isWorking;
         baseTimeLeft = isWorking ? WORK_TIME : BREAK_TIME;
         document.body.className = isWorking ? "mode-work" : "mode-break";
         statusDisplay.textContent = isWorking ? "FOCUS" : "BREAK";
         
-        // 変数の初期化
         startTimeStamp = null; 
         segmentStartTime = null;
         actualWorkSeconds = 0;
@@ -760,7 +802,6 @@
         updateDisplay(baseTimeLeft);
         taskInput.disabled = false; 
         
-        // 🌟 自動で次のフェーズのタイマーを即時開始（完全全自動ループ）
         setTimeout(() => {
             startTimer();
         }, delayMs + 500); 
@@ -785,7 +826,6 @@
             currentTaskDisplay.classList.remove('hidden');
         }
         
-        // 🌟 ボタンのテキストを「一時停止」に切り替え
         toggleBtn.textContent = "一時停止";
 
         timerId = setInterval(() => {
@@ -823,11 +863,9 @@
             totalTimeAccumulatedBeforePause += elapsedSeconds;
         }
 
-        // 🌟 ボタンのテキストを「スタート」に切り替え
         toggleBtn.textContent = "スタート";
     }
 
-    // 🌟 ひとつのボタンでスタートと一時停止を切り替えるイベントハンドラー
     function handleToggle() {
         if (timerId === null) {
             startTimer();
@@ -849,15 +887,9 @@
         currentTaskDisplay.classList.add('hidden'); 
         taskInput.disabled = false; 
         updateDisplay(baseTimeLeft); 
-        toggleBtn.textContent = "スタート"; // ボタン表記を初期化
+        toggleBtn.textContent = "スタート"; 
     }
 
-    document.getElementById('view-logs-btn').addEventListener('click', () => {
-        renderAllPermanentLogs();
-        logModal.classList.remove('hidden');
-    });
-    document.getElementById('close-log').addEventListener('click', () => { logModal.classList.add('hidden'); });
-    
     document.getElementById('danger-reset-btn').addEventListener('click', () => {
         if (confirm("これまでの累計回数、分数、および過去の全日付データがすべて削除されます。本当によろしいですか？")) {
             localStorage.clear();
@@ -866,7 +898,13 @@
         }
     });
 
-    // 各ボタンのイベントリスナーを登録
+    // 🌟 アコーディオン外のクリックで、ドロップダウンを自動で閉じる処理
+    document.addEventListener('click', (e) => {
+        if (!logsAccordion.contains(e.target)) {
+            logsAccordion.open = false;
+        }
+    });
+
     toggleBtn.addEventListener('click', handleToggle);
     document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
