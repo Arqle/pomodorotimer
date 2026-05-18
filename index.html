@@ -6,7 +6,7 @@
     <title>ポモドーロタイマー</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌀</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱️</text></svg>">
 
     <style>
         :root {
@@ -81,7 +81,7 @@
             max-width: 450px;
             border-radius: 32px;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
-            padding: 55px 40px 45px 40px; /* 上部にボタンを置くためpadding-topを調整 */
+            padding: 55px 40px 45px 40px; 
             text-align: center;
             z-index: 10;
             transition: background 0.3s ease;
@@ -91,7 +91,7 @@
         .settings-icon-btn {
             position: absolute;
             top: 25px;
-            right: 25px;
+            right: 25px; /* 右端に配置 */
             background: rgba(255, 255, 255, 0.15); 
             border: 1px solid rgba(255, 255, 255, 0.2);
             font-size: 1.1rem;
@@ -114,11 +114,11 @@
             box-shadow: 0 0 15px var(--primary-color);
         }
 
-        /* 🌟 左上：過去の記録データを見る（アコーディオン化） 🌟 */
+        /* 🌟 右上：過去の記録データを見る（歯車のすぐ左隣に配置） 🌟 */
         .history-logs-accordion {
             position: absolute;
             top: 25px;
-            left: 25px;
+            right: 73px; /* 歯車ボタン(25px) + ボタン幅(38px) + 間隔(10px) = 73px */
             z-index: 20;
             text-align: left;
         }
@@ -149,7 +149,7 @@
         .history-logs-dropdown {
             position: absolute;
             top: 48px;
-            left: 0;
+            right: -48px; /* パネルがカードの右側からはみ出さないように調整 */
             background: #1e293b;
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: white;
@@ -437,7 +437,7 @@
 
 <div class="card" id="timer-card">
     <details id="history-logs-accordion" class="history-logs-accordion">
-        <summary title="過去のデータデータを見る">📊</summary>
+        <summary title="過去の記録データを見る">📊</summary>
         <div class="history-logs-dropdown">
             <h3>📊 過去の全作業記録</h3>
             <div id="log-scroll-area" class="log-scroll-area"></div>
@@ -494,7 +494,7 @@
         { url: "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1920&q=80", name: "📍 カッパドキアの熱気球（トルコ）" },
         { url: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1559&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxフォトページfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 セリャラントスフォスの滝（アイスランド）" },
         { url: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1920&q=80", name: "📍 サントリーニ島（ギリシャ）" },
-        { url: "https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?auto=format&fit=crop&w=1920&q=80", name: "📍 伏見稲荷大社・千本鳥居（日本）" },
+        { url: "https://images.unsplash.com/photo-1524413840807-0c3cb6fa807d?auto=format&fit=crop&w=1920&q=80", name: "📍 伏見稲荷大社・千本鳥居（日本）" },
         { url: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=1920&q=80", name: "📍 富士山と新倉山浅感公園（日本）" },
         { url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80", name: "📍 ヨセミテ国立公園（アメリカ）" },
         { url: "https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=1920&q=80", name: "📍 アルプスの山々とマッターホルン（スイス）" },
@@ -590,7 +590,7 @@
     const totalTimeView = document.getElementById('stat-total-time');
     const logScrollArea = document.getElementById('log-scroll-area');
     const toggleBtn = document.getElementById('toggleBtn');
-    const logsAccordion = document.getElementById('history-logs-accordion'); // 🌟
+    const logsAccordion = document.getElementById('history-logs-accordion');
 
     const circle = document.querySelector('.progress-ring__circle');
     const radius = circle.r.baseVal.value; const circumference = radius * 2 * Math.PI;
@@ -654,7 +654,6 @@
         if (dayGroup && dayGroup.items[indexInDay]) {
             dayGroup.items[indexInDay].review = newReview;
             localStorage.setItem('pomo_all_logs', JSON.stringify(allLogs));
-            // 🌟 ドロップダウン展開中なら再描画して文字を同期
             if(logsAccordion.open) renderAllPermanentLogs(); 
         }
     }
@@ -701,7 +700,7 @@
         });
     }
 
-    // 🌟 過去ログアコーディオンが開かれた時にデータを描画するリスナー
+    // 過去ログアコーディオンが開かれた時にデータを描画
     logsAccordion.addEventListener('toggle', () => {
         if (logsAccordion.open) {
             renderAllPermanentLogs();
@@ -898,7 +897,7 @@
         }
     });
 
-    // 🌟 アコーディオン外のクリックで、ドロップダウンを自動で閉じる処理
+    // アコーディオン外のクリックで自動で閉じる
     document.addEventListener('click', (e) => {
         if (!logsAccordion.contains(e.target)) {
             logsAccordion.open = false;
