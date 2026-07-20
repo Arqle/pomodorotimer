@@ -91,7 +91,7 @@
         .settings-icon-btn {
             position: absolute;
             top: 25px;
-            right: 25px; /* 右端に配置 */
+            right: 25px; 
             background: rgba(255, 255, 255, 0.15); 
             border: 1px solid rgba(255, 255, 255, 0.2);
             font-size: 1.1rem;
@@ -114,11 +114,11 @@
             box-shadow: 0 0 15px var(--primary-color);
         }
 
-        /* 🌟 右上：過去の記録データを見る（歯車のすぐ左隣に配置） 🌟 */
+        /* 右上：過去の記録データを見る */
         .history-logs-accordion {
             position: absolute;
             top: 25px;
-            right: 73px; /* 歯車ボタン(25px) + ボタン幅(38px) + 間隔(10px) = 73px */
+            right: 73px; 
             z-index: 20;
             text-align: left;
         }
@@ -149,7 +149,7 @@
         .history-logs-dropdown {
             position: absolute;
             top: 48px;
-            right: -48px; /* パネルがカードの右側からはみ出さないように調整 */
+            right: -48px; 
             background: #1e293b;
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: white;
@@ -171,6 +171,39 @@
             padding-bottom: 8px;
         }
 
+        /* モードセレクター */
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 18px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .mode-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 8px 2px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .mode-tab:hover {
+            color: #ffffff;
+        }
+        .mode-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
         /* 累積記録ダッシュボード */
         .stats-dashboard {
             display: flex;
@@ -179,13 +212,14 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 16px;
             padding: 12px 10px;
-            margin-top: 20px;
+            margin-top: 10px;
             margin-bottom: 20px;
         }
         .stats-item {
             display: flex;
             flex-direction: column;
             align-items: center;
+            flex: 1;
         }
         .stats-label {
             font-size: 0.7rem;
@@ -195,7 +229,7 @@
             margin-bottom: 3px;
         }
         .stats-value {
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-main);
         }
@@ -230,7 +264,7 @@
         .modal-overlay.hidden .modal-content { transform: translateY(20px); }
         .modal-content h2 { margin-top: 0; font-size: 1.2rem; font-weight: 600; margin-bottom: 25px; letter-spacing: 1px; text-align: center; }
         
-        /* 過去ログエリアのスクロールエリアとデザイン */
+        /* 過去ログエリアのスクロールエリア */
         .log-scroll-area {
             flex: 1;
             overflow-y: auto;
@@ -397,8 +431,8 @@
         <h2>⚙️ 各種設定</h2>
         
         <div class="setting-row">
-            <label>🪟 タイマーの不透明度</label>
-            <input type="range" id="opacity-slider" min="0.1" max="0.9" step="0.05" value="0.25">
+            <label>🪟 タイマーの不透明度 (0: 完全透明 〜 0.25: 旧最高)</label>
+            <input type="range" id="opacity-slider" min="0" max="0.25" step="0.01" value="0.25">
         </div>
 
         <div class="setting-row">
@@ -449,14 +483,20 @@
 
     <div id="datetime-display" class="datetime"></div>
 
+    <div class="mode-selector">
+        <button id="mode-25" class="mode-tab active" onclick="changeTimerMode('pomodoro-25')">ポモドーロ 25分</button>
+        <button id="mode-50" class="mode-tab" onclick="changeTimerMode('pomodoro-50')">ポモドーロ 50分</button>
+        <button id="mode-sw" class="mode-tab" onclick="changeTimerMode('stopwatch')">ストップウォッチ</button>
+    </div>
+
     <div class="stats-dashboard">
         <div class="stats-item">
-            <span class="stats-label">📊 累計ポモドーロ</span>
+            <span class="stats-label">📊 累計完了回数</span>
             <span id="stat-total-count" class="stats-value">0 回</span>
         </div>
         <div class="stats-item">
             <span class="stats-label">⏱️ 累計作業時間</span>
-            <span id="stat-total-time" class="stats-value">0 分</span>
+            <span id="stat-total-time" class="stats-value">0分 0秒</span>
         </div>
     </div>
 
@@ -475,11 +515,12 @@
 
     <div class="controls">
         <button id="toggleBtn" class="btn-primary">スタート</button>
+        <button id="recordBtn" class="btn-secondary hidden">記録して終了</button>
         <button id="resetBtn" class="btn-secondary">リセット</button>
     </div>
 
     <div class="input-group">
-        <label>🎯 次のポモドーロでやること</label>
+        <label id="task-input-label">🎯 次のポモドーロでやること</label>
         <input type="text" id="task-input" placeholder="例: 企画書の作成を進める">
     </div>
 
@@ -492,7 +533,7 @@
 <script>
     const bgData = [
         { url: "https://images.unsplash.com/photo-1505832018823-50331d70d237?q=80&w=2108&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 グレンフィナン高架橋（イギリス）" },
-        { url: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1559&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxフォトページfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 セリャラントスフォスの滝（アイスランド）" },
+        { url: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1559&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 セリャラントスフォスの滝（アイスランド）" },
         { url: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1920&q=80", name: "📍 サントリーニ島（ギリシャ）" },
         { url: "https://images.unsplash.com/photo-1511300636408-a63a89df3482?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 ヴェストラホルン山（アイスランド）" },
         { url: "https://images.unsplash.com/photo-1498429089284-41f8cf3ffd39?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", name: "📍 ヨセミテ国立公園（アメリカ）" },
@@ -517,6 +558,14 @@
     layer2.style.opacity = 0;
     locationBadge.textContent = bgData[currentBgIndex].name;
 
+    // 背景のプリロード用
+    function preloadNextBackground() {
+        const nextIndex = (currentBgIndex + 1) % bgData.length;
+        const img = new Image();
+        img.src = bgData[nextIndex].url;
+    }
+    preloadNextBackground();
+
     function changeBackground() {
         currentBgIndex = (currentBgIndex + 1) % bgData.length;
         const nextImg = `url('${bgData[currentBgIndex].url}')`;
@@ -532,6 +581,9 @@
         } else {
             layer1.style.backgroundImage = nextImg; layer1.style.opacity = 1; layer2.style.opacity = 0; activeLayer = 1;
         }
+        
+        // 切り替え完了後にさらに次の1枚をプリロード
+        setTimeout(preloadNextBackground, 2000);
     }
     setInterval(changeBackground, 150000);
 
@@ -584,6 +636,7 @@
     const timerDisplay = document.getElementById('timer');
     const statusDisplay = document.getElementById('status');
     const taskInput = document.getElementById('task-input');
+    const taskInputLabel = document.getElementById('task-input-label');
     const currentTaskDisplay = document.getElementById('current-task-display');
     const historyAccordion = document.getElementById('history-accordion');
     const historyCount = document.getElementById('history-count');
@@ -592,15 +645,21 @@
     const totalTimeView = document.getElementById('stat-total-time');
     const logScrollArea = document.getElementById('log-scroll-area');
     const toggleBtn = document.getElementById('toggleBtn');
+    const recordBtn = document.getElementById('recordBtn');
+    const resetBtn = document.getElementById('resetBtn');
     const logsAccordion = document.getElementById('history-logs-accordion');
 
     const circle = document.querySelector('.progress-ring__circle');
     const radius = circle.r.baseVal.value; const circumference = radius * 2 * Math.PI;
     circle.style.strokeDasharray = `${circumference} ${circumference}`; circle.style.strokeDashoffset = 0;
 
-    const WORK_TIME = 25 * 60;
-    const BREAK_TIME = 5 * 60;
+    // 各モードの標準定数
+    const WORK_TIME_25 = 25 * 60;
+    const BREAK_TIME_25 = 5 * 60;
+    const WORK_TIME_50 = 50 * 60;
+    const BREAK_TIME_50 = 10 * 60;
     
+    let timerMode = 'pomodoro-25'; // 'pomodoro-25' | 'pomodoro-50' | 'stopwatch'
     let isWorking = true;
     let timerId = null;
     let historyData = [];
@@ -608,18 +667,53 @@
     
     let startTimeStamp = null;       
     let segmentStartTime = null;     
-    let baseTimeLeft = WORK_TIME;    
+    let baseTimeLeft = WORK_TIME_25; // ストップウォッチモード時は「現在の秒数」を保持
     let actualWorkSeconds = 0;       
     let totalTimeAccumulatedBeforePause = 0; 
+    let addedSecondsInSegment = 0;   // リアルタイム累積作業時間のセグメント別内部カウント用
+    let thisSessionAddedSeconds = 0; // 🌟 破棄時（リセット時）に累積時間から差し引くための「現在の稼働時間内加算分」
 
     function getTodayString() {
         const now = new Date();
         return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
     }
 
+    // 累積時間を秒で取得・管理
+    function getTotalWorkSeconds() {
+        let savedSeconds = localStorage.getItem('pomo_total_seconds');
+        if (savedSeconds !== null) {
+            return parseFloat(savedSeconds);
+        }
+        // 旧バージョン互換
+        let savedMinutes = parseInt(localStorage.getItem('pomo_total_minutes') || '0');
+        let converted = savedMinutes * 60;
+        localStorage.setItem('pomo_total_seconds', converted);
+        return converted;
+    }
+
+    function addTotalWorkSeconds(sec) {
+        let current = getTotalWorkSeconds();
+        let next = current + sec;
+        // マイナス値になった場合のフォールバック（過剰減算防止）
+        if (next < 0) next = 0;
+        localStorage.setItem('pomo_total_seconds', next);
+        localStorage.setItem('pomo_total_minutes', Math.floor(next / 60));
+    }
+
+    function formatTotalTime(totalSeconds) {
+        totalSeconds = Math.floor(totalSeconds);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        if (hours > 0) {
+            return `${hours}時間 ${minutes}分 ${seconds}秒`;
+        }
+        return `${minutes}分 ${seconds}秒`;
+    }
+
     function updateStatsDashboard() {
         totalCountView.textContent = `${localStorage.getItem('pomo_total_count') || '0'} 回`;
-        totalTimeView.textContent = `${localStorage.getItem('pomo_total_minutes') || '0'} 分`;
+        totalTimeView.textContent = formatTotalTime(getTotalWorkSeconds());
     }
 
     function renderHistory() {
@@ -665,7 +759,7 @@
         let allLogs = JSON.parse(localStorage.getItem('pomo_all_logs') || '[]');
 
         if (allLogs.length === 0) {
-            logScrollArea.innerHTML = '<div class="empty-log-msg">履歴データがまだありません。<br>ポモドーロを完了するとここに蓄積されます。</div>';
+            logScrollArea.innerHTML = '<div class="empty-log-msg">履歴データがまだありません。<br>時間・タスクを完了するとここに蓄積されます。</div>';
             return;
         }
 
@@ -680,7 +774,7 @@
             
             headerDiv.innerHTML = `
                 <span>📅 ${group.date}</span>
-                <span class="log-date-total">合計: ${dayTotalMinutes}分 (${group.items.length}回)</span>
+                <span class="log-date-total">合計: 約${dayTotalMinutes}分 (${group.items.length}回)</span>
             `;
             groupDiv.appendChild(headerDiv);
 
@@ -739,22 +833,35 @@
     }
     setInterval(updateClock, 1000); updateClock();
 
-    function updateDisplay(secondsLeft) {
-        if (secondsLeft < 0) secondsLeft = 0;
-        let minutes = Math.floor(secondsLeft / 60); let seconds = Math.floor(secondsLeft % 60);
-        timerDisplay.textContent = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-        const total = isWorking ? WORK_TIME : BREAK_TIME;
-        circle.style.strokeDashoffset = circumference - ((secondsLeft / total) * circumference);
+    function updateDisplay(seconds) {
+        if (seconds < 0) seconds = 0;
+        let minutes = Math.floor(seconds / 60); 
+        let secs = Math.floor(seconds % 60);
+        timerDisplay.textContent = String(minutes).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+
+        if (timerMode === 'stopwatch') {
+            circle.style.strokeDashoffset = circumference - (((seconds % 60) / 60) * circumference);
+        } else {
+            const total = (timerMode === 'pomodoro-25') 
+                ? (isWorking ? WORK_TIME_25 : BREAK_TIME_25)
+                : (isWorking ? WORK_TIME_50 : BREAK_TIME_50);
+            circle.style.strokeDashoffset = circumference - ((seconds / total) * circumference);
+        }
     }
 
+    // 各ポモドーロ完了時の処理
     function switchMode() {
         if(audioCtx.state === 'suspended') audioCtx.resume();
         let delayMs = isWorking ? sounds[workSoundType]() : sounds[breakSoundType]();
 
         if (isWorking) {
+            // 正常に終了したため、当セッションの巻き戻し用バッファをリセット
+            thisSessionAddedSeconds = 0;
+
             if (!startTimeStamp) {
-                startTimeStamp = new Date(Date.now() - WORK_TIME * 1000);
-                actualWorkSeconds = WORK_TIME;
+                const targetLimit = (timerMode === 'pomodoro-25') ? WORK_TIME_25 : WORK_TIME_50;
+                startTimeStamp = new Date(Date.now() - targetLimit * 1000);
+                actualWorkSeconds = targetLimit;
             }
 
             const endTime = new Date();
@@ -779,8 +886,8 @@
             }
             localStorage.setItem('pomo_all_logs', JSON.stringify(allLogs));
 
+            // ポモドーロの完了回数をインクリメント
             localStorage.setItem('pomo_total_count', parseInt(localStorage.getItem('pomo_total_count') || '0') + 1);
-            localStorage.setItem('pomo_total_minutes', parseInt(localStorage.getItem('pomo_total_minutes') || '0') + minutesPassed);
 
             renderHistory();
             updateStatsDashboard();
@@ -791,7 +898,13 @@
         }
 
         isWorking = !isWorking;
-        baseTimeLeft = isWorking ? WORK_TIME : BREAK_TIME;
+        
+        if (timerMode === 'pomodoro-25') {
+            baseTimeLeft = isWorking ? WORK_TIME_25 : BREAK_TIME_25;
+        } else {
+            baseTimeLeft = isWorking ? WORK_TIME_50 : BREAK_TIME_50;
+        }
+        
         document.body.className = isWorking ? "mode-work" : "mode-break";
         statusDisplay.textContent = isWorking ? "FOCUS" : "BREAK";
         
@@ -799,6 +912,8 @@
         segmentStartTime = null;
         actualWorkSeconds = 0;
         totalTimeAccumulatedBeforePause = 0;
+        addedSecondsInSegment = 0;
+        thisSessionAddedSeconds = 0;
 
         updateDisplay(baseTimeLeft);
         taskInput.disabled = false; 
@@ -808,13 +923,87 @@
         }, delayMs + 500); 
     }
 
+    // ストップウォッチを記録して終了する関数
+    function recordStopwatch() {
+        if (timerMode !== 'stopwatch') return;
+        
+        const elapsedSinceLastSegment = timerId ? (Date.now() - segmentStartTime) / 1000 : 0;
+        const totalDurationSeconds = baseTimeLeft + elapsedSinceLastSegment;
+        
+        if (totalDurationSeconds < 1) {
+            alert("記録する時間が短すぎます。");
+            return;
+        }
+
+        pauseTimer();
+
+        // 正常に記録されたため、当セッションの巻き戻し用バッファをクリア
+        thisSessionAddedSeconds = 0;
+
+        const endTime = new Date();
+        const startSec = endTime.getTime() - (totalDurationSeconds * 1000);
+        const startTime = new Date(startSec);
+        
+        const formatTime = (date) => String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+        const minutesPassed = Math.round(totalDurationSeconds / 60);
+        const secPassed = Math.round(totalDurationSeconds % 60);
+        
+        let timeLabel = minutesPassed > 0 ? `${minutesPassed}分${secPassed}秒` : `${secPassed}秒`;
+        const timeRangeStr = `${formatTime(startTime)}~${formatTime(endTime)} (${timeLabel})`;
+        const todayStr = getTodayString();
+
+        const taskName = taskInput.value || 'ストップウォッチ記録';
+
+        historyData.unshift({ task: taskName, timeRange: timeRangeStr, review: '' });
+        localStorage.setItem('pomo_history', JSON.stringify(historyData));
+        localStorage.setItem('pomo_date', todayStr);
+
+        let allLogs = JSON.parse(localStorage.getItem('pomo_all_logs') || '[]');
+        let dayGroup = allLogs.find(g => g.date === todayStr);
+        const minutesToLog = Math.round(totalDurationSeconds / 60) || 1;
+        const newLogItem = { task: taskName, timeRange: timeRangeStr, minutes: minutesToLog, review: '' };
+        
+        if (dayGroup) {
+            dayGroup.items.unshift(newLogItem);
+        } else {
+            allLogs.unshift({ date: todayStr, items: [newLogItem] });
+        }
+        localStorage.setItem('pomo_all_logs', JSON.stringify(allLogs));
+
+        localStorage.setItem('pomo_total_count', parseInt(localStorage.getItem('pomo_total_count') || '0') + 1);
+
+        renderHistory();
+        
+        // 状態のリセット
+        baseTimeLeft = 0;
+        addedSecondsInSegment = 0;
+        actualWorkSeconds = 0;
+        totalTimeAccumulatedBeforePause = 0;
+        startTimeStamp = null;
+        thisSessionAddedSeconds = 0;
+        
+        updateDisplay(0);
+        taskInput.value = ''; localStorage.setItem('pomo_next_task', '');
+        currentTaskDisplay.classList.add('hidden');
+        updateStatsDashboard();
+        historyAccordion.open = true;
+    }
+
     function startTimer() {
         if(audioCtx.state === 'suspended') audioCtx.resume(); 
         if (timerId !== null) return;
         
         segmentStartTime = Date.now();
+        addedSecondsInSegment = 0;
 
-        if (isWorking) {
+        if (timerMode === 'stopwatch') {
+            currentTaskName = taskInput.value || 'ストップウォッチ計測';
+            currentTaskDisplay.textContent = `⏱️ 計測中: ${currentTaskName}`;
+            currentTaskDisplay.classList.remove('hidden');
+            if (!startTimeStamp) {
+                startTimeStamp = new Date();
+            }
+        } else if (isWorking) {
             currentTaskName = taskInput.value || 'タスク未設定';
             currentTaskDisplay.textContent = `🔥 進行中: ${currentTaskName}`; 
             currentTaskDisplay.classList.remove('hidden');
@@ -830,25 +1019,46 @@
         toggleBtn.textContent = "一時停止";
 
         timerId = setInterval(() => {
-            const elapsedMilliseconds = Date.now() - segmentStartTime;
+            const now = Date.now();
+            const elapsedMilliseconds = now - segmentStartTime;
             const elapsedSeconds = elapsedMilliseconds / 1000;
-            const currentLeft = baseTimeLeft - elapsedSeconds;
-            
-            if (isWorking) {
-                actualWorkSeconds = totalTimeAccumulatedBeforePause + elapsedSeconds;
+
+            // 作業中またはストップウォッチ中の場合、経過秒数をリアルタイムで加算
+            if ((timerMode !== 'stopwatch' && isWorking) || timerMode === 'stopwatch') {
+                const diff = elapsedSeconds - addedSecondsInSegment;
+                if (diff > 0) {
+                    addTotalWorkSeconds(diff);
+                    addedSecondsInSegment = elapsedSeconds;
+                    thisSessionAddedSeconds += diff; // 🌟 破棄時（リセット）に巻き戻す用の数値をストック
+                    updateStatsDashboard();
+                }
             }
 
-            if (currentLeft > 0) { 
-                updateDisplay(currentLeft); 
-            } 
-            else { 
-                clearInterval(timerId);
-                timerId = null;
-                switchMode(); 
+            if (timerMode === 'stopwatch') {
+                const currentElapsed = baseTimeLeft + elapsedSeconds;
+                updateDisplay(currentElapsed);
+            } else {
+                if (isWorking) {
+                    actualWorkSeconds = totalTimeAccumulatedBeforePause + elapsedSeconds;
+                }
+
+                const currentLeft = baseTimeLeft - elapsedSeconds;
+                if (currentLeft > 0) { 
+                    updateDisplay(currentLeft); 
+                } 
+                else { 
+                    clearInterval(timerId);
+                    timerId = null;
+                    switchMode(); 
+                }
             }
         }, 200); 
         
-        if (isWorking) taskInput.disabled = true;
+        if (timerMode !== 'stopwatch') {
+            if (isWorking) taskInput.disabled = true;
+        } else {
+            taskInput.disabled = true;
+        }
     }
 
     function pauseTimer() { 
@@ -858,16 +1068,22 @@
         taskInput.disabled = false; 
 
         const elapsedSeconds = (Date.now() - segmentStartTime) / 1000;
-        baseTimeLeft = baseTimeLeft - elapsedSeconds;
         
-        if (isWorking) {
-            totalTimeAccumulatedBeforePause += elapsedSeconds;
+        if (timerMode === 'stopwatch') {
+            baseTimeLeft = baseTimeLeft + elapsedSeconds;
+        } else {
+            baseTimeLeft = baseTimeLeft - elapsedSeconds;
+            if (isWorking) {
+                totalTimeAccumulatedBeforePause += elapsedSeconds;
+            }
         }
-
+        
+        addedSecondsInSegment = 0;
         toggleBtn.textContent = "スタート";
     }
 
     function handleToggle() {
+        if(audioCtx.state === 'suspended') audioCtx.resume(); 
         if (timerId === null) {
             startTimer();
         } else {
@@ -877,18 +1093,69 @@
     
     function resetTimer() { 
         pauseTimer(); 
+
+        // 🌟 リアルタイムで加算されていた未完了（破棄された）セッション分の時間を累積から差し引いて元に戻す 🌟
+        if ((timerMode !== 'stopwatch' && isWorking) || timerMode === 'stopwatch') {
+            if (thisSessionAddedSeconds > 0) {
+                addTotalWorkSeconds(-thisSessionAddedSeconds);
+            }
+        }
+
         isWorking = true; 
-        baseTimeLeft = WORK_TIME; 
+        
+        if (timerMode === 'pomodoro-25') {
+            baseTimeLeft = WORK_TIME_25;
+        } else if (timerMode === 'pomodoro-50') {
+            baseTimeLeft = WORK_TIME_50;
+        } else {
+            baseTimeLeft = 0;
+        }
+        
         startTimeStamp = null; 
         segmentStartTime = null;
         actualWorkSeconds = 0; 
         totalTimeAccumulatedBeforePause = 0;
+        addedSecondsInSegment = 0;
+        thisSessionAddedSeconds = 0;
+        
         document.body.className = "mode-work"; 
-        statusDisplay.textContent = "FOCUS"; 
+        statusDisplay.textContent = timerMode === 'stopwatch' ? "STOPWATCH" : "FOCUS"; 
         currentTaskDisplay.classList.add('hidden'); 
         taskInput.disabled = false; 
         updateDisplay(baseTimeLeft); 
         toggleBtn.textContent = "スタート"; 
+        updateStatsDashboard();
+    }
+
+    // タイマーモードを切り替える関数
+    window.changeTimerMode = function(mode) {
+        if (timerMode === mode) return;
+        
+        // 動作中のタイマーがあれば一時停止（および未確定累積時間を差し引きリセット）
+        resetTimer();
+
+        timerMode = mode;
+        
+        // タブのアクティブクラス切り替え
+        document.querySelectorAll('.mode-tab').forEach(tab => tab.classList.remove('active'));
+        if (mode === 'pomodoro-25') {
+            document.getElementById('mode-25').classList.add('active');
+            taskInputLabel.textContent = "🎯 次のポモドーロでやること";
+            statusDisplay.textContent = "FOCUS";
+            recordBtn.classList.add('hidden');
+        } else if (mode === 'pomodoro-50') {
+            document.getElementById('mode-50').classList.add('active');
+            taskInputLabel.textContent = "🎯 次のポモドーロでやること";
+            statusDisplay.textContent = "FOCUS";
+            recordBtn.classList.add('hidden');
+        } else if (mode === 'stopwatch') {
+            document.getElementById('mode-sw').classList.add('active');
+            taskInputLabel.textContent = "🎯 計測する内容";
+            statusDisplay.textContent = "STOPWATCH";
+            recordBtn.classList.remove('hidden');
+        }
+
+        resetTimer();
     }
 
     document.getElementById('danger-reset-btn').addEventListener('click', () => {
@@ -907,9 +1174,11 @@
     });
 
     toggleBtn.addEventListener('click', handleToggle);
-    document.getElementById('resetBtn').addEventListener('click', resetTimer);
+    recordBtn.addEventListener('click', recordStopwatch);
+    resetBtn.addEventListener('click', resetTimer);
 
-    loadSavedData(); updateDisplay(baseTimeLeft);
+    loadSavedData(); 
+    updateDisplay(baseTimeLeft);
 </script>
 
 </body>
