@@ -12,8 +12,7 @@
     <style>
         :root {
             --bg-color: #0b0f17;
-            /* 🌟 デフォルトで適度な半透明にし、背景が上品に透ける設計 */
-            --panel-bg: rgba(15, 23, 42, 0.45); 
+            --panel-bg: rgba(15, 23, 42, 0.52); 
             --panel-border: rgba(255, 255, 255, 0.14);
             --card-sub: rgba(255, 255, 255, 0.07);
             
@@ -60,7 +59,7 @@
             background-position: center;
             transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: -2;
-            filter: brightness(0.75) saturate(1.1);
+            filter: brightness(0.72) saturate(1.1);
         }
         .bg-overlay {
             position: fixed;
@@ -85,58 +84,6 @@
             pointer-events: auto;
         }
 
-        /* YouTube BGM プレイヤーバー */
-        .bgm-widget {
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 9999px;
-            padding: 6px 14px 6px 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-        }
-        .bgm-btn {
-            background: #ffffff;
-            color: #0b0f17;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: transform 0.15s ease, background-color 0.15s;
-        }
-        .bgm-btn:hover {
-            transform: scale(1.05);
-            background: #e2e8f0;
-        }
-        .bgm-select {
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            font-size: 0.8rem;
-            font-weight: 500;
-            font-family: inherit;
-            cursor: pointer;
-            outline: none;
-        }
-        .bgm-select option {
-            background: #182234;
-            color: #fff;
-        }
-        .bgm-volume-slider {
-            width: 60px;
-            height: 4px;
-            accent-color: #ffffff;
-            cursor: pointer;
-        }
-
         /* 撮影地タグ */
         .location-tag {
             font-size: 0.75rem;
@@ -150,7 +97,110 @@
             letter-spacing: 0.02em;
         }
 
-        /* メインカード（半透明＋すりガラス） */
+        /* 🌟 ミニYouTubeプレイヤーウィジェット (画面左下) */
+        .yt-widget {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            padding: 12px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            width: 260px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .yt-widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .yt-toggle-visibility-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+        .yt-toggle-visibility-btn:hover {
+            color: #ffffff;
+        }
+        .yt-screen-container {
+            width: 100%;
+            height: 135px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 10px;
+            transition: height 0.3s ease, margin 0.3s ease;
+        }
+        .yt-widget.collapsed .yt-screen-container {
+            height: 0;
+            margin-bottom: 0;
+        }
+        .yt-screen-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .yt-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .yt-select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            font-size: 0.75rem;
+            padding: 6px 8px;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+        }
+        .yt-select option {
+            background: #182234;
+            color: #fff;
+        }
+        .yt-btns-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .yt-play-btn {
+            background: #ffffff;
+            color: #0b0f17;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: opacity 0.15s;
+        }
+        .yt-play-btn:hover {
+            opacity: 0.9;
+        }
+        .yt-volume-slider {
+            flex: 1;
+            height: 4px;
+            accent-color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* メインタイマーカード */
         .app-container {
             width: 100%;
             max-width: 440px;
@@ -573,6 +623,14 @@
 
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 4px; }
+
+        @media (max-width: 768px) {
+            .yt-widget {
+                left: 16px;
+                bottom: 16px;
+                width: 220px;
+            }
+        }
     </style>
 </head>
 <body class="mode-work">
@@ -582,26 +640,37 @@
 <div id="bg-layer-2" class="bg-layer"></div>
 <div class="bg-overlay"></div>
 
-<!-- ヘッダーバー: YouTube BGM & 背景地 -->
+<!-- ヘッダーバー -->
 <div class="top-bar">
-    <div class="bgm-widget">
-        <button id="bgm-toggle-btn" class="bgm-btn" title="BGM 再生/停止">▶</button>
-        <select id="bgm-playlist-select" class="bgm-select">
-            <option value="jfKfPfyJRdk">🎧 Lofi Girl - 勉強集中ラジオ</option>
-            <option value="mPZkdNFkNps">☕ Rainy Jazz Cafe - 雨音と珈琲</option>
-            <option value="5qap5aO4i9A">🌧️ Gentle Rain - 静寂の雨と雷</option>
-            <option value="4xDzrJKXOOY">🎹 Relaxing Classical - ピアノ名曲</option>
-            <option value="4xDzrJKXOOY">🌌 Synthwave Radio - 深夜の作業</option>
-        </select>
-        <input type="range" id="bgm-volume-slider" class="bgm-volume-slider" min="0" max="100" value="40" title="BGM 音量">
+    <div style="font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; color: var(--text-muted);">
+        FOCUS SPACE
     </div>
-
     <div id="location-badge" class="location-tag">Loading...</div>
 </div>
 
-<!-- 隠しYouTubeプレイヤー (API連携用) -->
-<div style="position: absolute; left: -9999px; top: -9999px;">
-    <div id="youtube-player"></div>
+<!-- 🌟 YouTube プレイヤーウィジェット（画面左下・折りたたみ可能） -->
+<div class="yt-widget" id="yt-widget">
+    <div class="yt-widget-header">
+        <span>📻 勉強用 BGM</span>
+        <button id="yt-collapse-btn" class="yt-toggle-visibility-btn" title="最小化/展開">▼ 隠す</button>
+    </div>
+    <div class="yt-screen-container">
+        <!-- YouTube IFrame はここに直接生成されます -->
+        <div id="yt-player-box"></div>
+    </div>
+    <div class="yt-controls">
+        <select id="bgm-playlist-select" class="yt-select">
+            <option value="jfKfPfyJRdk">🎧 Lofi Girl - 勉強集中ラジオ</option>
+            <option value="4xDzrJKXOOY">🎹 Relaxing Classical - ピアノ名曲</option>
+            <option value="5qap5aO4i9A">🌧️ Gentle Rain - 静寂の雨と雷</option>
+            <option value="Dx5qFachd3A">☕ Cozy Jazz Cafe - カフェの調べ</option>
+            <option value="q0BVR5jRX4Q">🌌 Synthwave Radio - 深夜の作業</option>
+        </select>
+        <div class="yt-btns-row">
+            <button id="bgm-toggle-btn" class="yt-play-btn">▶ 再生</button>
+            <input type="range" id="bgm-volume-slider" class="yt-volume-slider" min="0" max="100" value="50" title="音量">
+        </div>
+    </div>
 </div>
 
 <!-- メインタイマーカード -->
@@ -719,24 +788,34 @@
 
 <script>
     /* ====================================================
-       1. YouTube Background Music Controller
+       1. YouTube BGM コントローラー（描画保証付き）
     ==================================================== */
     let ytPlayer = null;
     let isBgmPlaying = false;
     const bgmToggleBtn = document.getElementById('bgm-toggle-btn');
     const bgmSelect = document.getElementById('bgm-playlist-select');
     const bgmVolumeSlider = document.getElementById('bgm-volume-slider');
+    const ytWidget = document.getElementById('yt-widget');
+    const ytCollapseBtn = document.getElementById('yt-collapse-btn');
+
+    // 折りたたみ制御
+    ytCollapseBtn.addEventListener('click', () => {
+        ytWidget.classList.toggle('collapsed');
+        if (ytWidget.classList.contains('collapsed')) {
+            ytCollapseBtn.textContent = '▲ 表示';
+        } else {
+            ytCollapseBtn.textContent = '▼ 隠す';
+        }
+    });
 
     function onYouTubeIframeAPIReady() {
-        ytPlayer = new YT.Player('youtube-player', {
-            height: '0',
-            width: '0',
+        ytPlayer = new YT.Player('yt-player-box', {
             videoId: bgmSelect.value,
             playerVars: {
                 playsinline: 1,
-                controls: 0,
-                disablekb: 1,
-                origin: window.location.origin
+                controls: 1,
+                modestbranding: 1,
+                rel: 0
             },
             events: {
                 'onReady': onPlayerReady,
@@ -752,10 +831,10 @@
     function onPlayerStateChange(event) {
         if (event.data === YT.PlayerState.PLAYING) {
             isBgmPlaying = true;
-            bgmToggleBtn.textContent = '⏸';
+            bgmToggleBtn.textContent = '⏸ 停止';
         } else {
             isBgmPlaying = false;
-            bgmToggleBtn.textContent = '▶';
+            bgmToggleBtn.textContent = '▶ 再生';
         }
     }
 
@@ -771,9 +850,7 @@
     bgmSelect.addEventListener('change', (e) => {
         if (!ytPlayer || typeof ytPlayer.loadVideoById !== 'function') return;
         ytPlayer.loadVideoById(e.target.value);
-        if (isBgmPlaying) {
-            ytPlayer.playVideo();
-        }
+        ytPlayer.playVideo();
     });
 
     bgmVolumeSlider.addEventListener('input', (e) => {
@@ -831,476 +908,4 @@
     const alarmGain = audioCtx.createGain();
     alarmGain.connect(audioCtx.destination);
 
-    function playTone(freq, startTime, duration, type='sine') {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0, startTime);
-        gain.gain.linearRampToValueAtTime(0.3, startTime + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-        osc.connect(gain);
-        gain.connect(alarmGain);
-        osc.start(startTime);
-        osc.stop(startTime + duration);
-    }
-
-    const sounds = {
-        chime: () => {
-            const now = audioCtx.currentTime;
-            playTone(369.99, now, 1.2);
-            playTone(293.66, now + 0.8, 1.2);
-            playTone(329.63, now + 1.6, 1.2);
-            playTone(220.00, now + 2.4, 1.8);
-            return 3800;
-        },
-        digital: () => {
-            const now = audioCtx.currentTime;
-            for(let j=0; j<2; j++){
-                let offset = now + j * 0.6;
-                for(let i=0; i<3; i++){
-                    playTone(880, offset + i * 0.1, 0.08, 'square');
-                }
-            }
-            return 1200;
-        },
-        melody: () => {
-            const now = audioCtx.currentTime;
-            playTone(523.25, now, 0.3);
-            playTone(659.25, now + 0.25, 0.3);
-            playTone(783.99, now + 0.5, 0.5);
-            return 1000;
-        },
-        simple: () => {
-            playTone(587.33, audioCtx.currentTime, 0.8, 'sine');
-            return 800;
-        }
-    };
-
-    let workSoundType = localStorage.getItem('pomo_work_sound') || 'chime';
-    let breakSoundType = localStorage.getItem('pomo_break_sound') || 'digital';
-    let alarmVolume = localStorage.getItem('pomo_alarm_volume') || '0.5';
-
-    alarmGain.gain.value = parseFloat(alarmVolume);
-    document.getElementById('alarm-volume-slider').value = alarmVolume;
-    document.getElementById('work-sound-select').value = workSoundType;
-    document.getElementById('break-sound-select').value = breakSoundType;
-
-    document.getElementById('alarm-volume-slider').addEventListener('input', (e) => {
-        alarmGain.gain.value = parseFloat(e.target.value);
-        localStorage.setItem('pomo_alarm_volume', e.target.value);
-    });
-    document.getElementById('work-sound-select').addEventListener('change', (e) => {
-        workSoundType = e.target.value;
-        localStorage.setItem('pomo_work_sound', workSoundType);
-    });
-    document.getElementById('break-sound-select').addEventListener('change', (e) => {
-        breakSoundType = e.target.value;
-        localStorage.setItem('pomo_break_sound', breakSoundType);
-    });
-
-    function testSound(mode) {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        if(mode === 'work') sounds[workSoundType]();
-        else sounds[breakSoundType]();
-    }
-
-    /* ====================================================
-       4. タイマーコア機能
-    ==================================================== */
-    const timerDisplay = document.getElementById('timer');
-    const statusDisplay = document.getElementById('status');
-    const taskInput = document.getElementById('task-input');
-    const taskInputLabel = document.getElementById('task-input-label');
-    const currentTaskDisplay = document.getElementById('current-task-display');
-    const historyAccordion = document.getElementById('history-accordion');
-    const historyCount = document.getElementById('history-count');
-    const historyList = document.getElementById('history-list');
-    const totalCountView = document.getElementById('stat-total-count');
-    const totalTimeView = document.getElementById('stat-total-time');
-    const logsContainer = document.getElementById('logs-container');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const recordBtn = document.getElementById('recordBtn');
-    const resetBtn = document.getElementById('resetBtn');
-
-    const circle = document.querySelector('.progress-meter-val');
-    const radius = circle.r.baseVal.value;
-    const circumference = radius * 2 * Math.PI;
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-    circle.style.strokeDashoffset = 0;
-
-    const WORK_TIME_25 = 25 * 60;
-    const BREAK_TIME_25 = 5 * 60;
-    const WORK_TIME_50 = 50 * 60;
-    const BREAK_TIME_50 = 10 * 60;
-
-    let timerMode = 'pomodoro-25';
-    let isWorking = true;
-    let timerId = null;
-    let historyData = [];
-    let currentTaskName = "";
-
-    let startTimeStamp = null;
-    let segmentStartTime = null;
-    let baseTimeLeft = WORK_TIME_25;
-    let actualWorkSeconds = 0;
-    let totalTimeAccumulatedBeforePause = 0;
-    let addedSecondsInSegment = 0;
-    let thisSessionAddedSeconds = 0;
-
-    function getTodayString() {
-        const now = new Date();
-        return `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
-    }
-
-    function getTotalWorkSeconds() {
-        return parseFloat(localStorage.getItem('pomo_total_seconds') || '0');
-    }
-
-    function addTotalWorkSeconds(sec) {
-        let current = getTotalWorkSeconds();
-        let next = Math.max(0, current + sec);
-        localStorage.setItem('pomo_total_seconds', next);
-    }
-
-    function formatTotalTime(totalSeconds) {
-        totalSeconds = Math.floor(totalSeconds);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        return hours > 0 ? `${hours}h ${minutes}m ${seconds}s` : `${minutes}分 ${seconds}秒`;
-    }
-
-    function updateStatsDashboard() {
-        totalCountView.textContent = `${localStorage.getItem('pomo_total_count') || '0'} 回`;
-        totalTimeView.textContent = formatTotalTime(getTotalWorkSeconds());
-    }
-
-    function renderHistory() {
-        historyList.innerHTML = '';
-        historyCount.textContent = `本日の達成タスク (${historyData.length})`;
-        if (historyData.length === 0) {
-            historyList.innerHTML = '<div style="color:var(--text-faint); font-size:0.75rem; text-align:center; padding: 12px 0;">まだ達成タスクはありません</div>';
-            return;
-        }
-        historyData.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'history-entry';
-            div.innerHTML = `
-                <div class="history-entry-head">
-                    <span>✓ ${item.task}</span>
-                    <span class="history-entry-time">${item.timeRange || ''}</span>
-                </div>
-            `;
-            const memo = document.createElement('textarea');
-            memo.className = 'history-entry-memo';
-            memo.placeholder = '振り返りメモ（自動保存）';
-            memo.value = item.review || '';
-            memo.addEventListener('input', (e) => {
-                historyData[index].review = e.target.value;
-                localStorage.setItem('pomo_history', JSON.stringify(historyData));
-            });
-            div.appendChild(memo);
-            historyList.appendChild(div);
-        });
-    }
-
-    function renderLogsModal() {
-        logsContainer.innerHTML = '';
-        let allLogs = JSON.parse(localStorage.getItem('pomo_all_logs') || '[]');
-        if (allLogs.length === 0) {
-            logsContainer.innerHTML = '<div style="color:var(--text-faint); font-size:0.8rem; text-align:center; padding:20px;">記録データはありません</div>';
-            return;
-        }
-        allLogs.forEach(group => {
-            const grp = document.createElement('div');
-            grp.className = 'log-day-group';
-            grp.innerHTML = `<div class="log-day-header">${group.date} (${group.items.length}回)</div>`;
-            group.items.forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'log-day-item';
-                row.innerHTML = `<span>${item.task}</span><span style="color:var(--text-muted); font-size:0.75rem;">${item.timeRange}</span>`;
-                grp.appendChild(row);
-            });
-            logsContainer.appendChild(grp);
-        });
-    }
-
-    function updateDisplay(seconds) {
-        if (seconds < 0) seconds = 0;
-        let mins = Math.floor(seconds / 60);
-        let secs = Math.floor(seconds % 60);
-        timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-        if (timerMode === 'stopwatch') {
-            circle.style.strokeDashoffset = circumference - (((seconds % 60) / 60) * circumference);
-        } else {
-            const total = (timerMode === 'pomodoro-25') 
-                ? (isWorking ? WORK_TIME_25 : BREAK_TIME_25)
-                : (isWorking ? WORK_TIME_50 : BREAK_TIME_50);
-            circle.style.strokeDashoffset = circumference - ((seconds / total) * circumference);
-        }
-    }
-
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('datetime-display').textContent = 
-            `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function switchMode() {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        let delayMs = isWorking ? sounds[workSoundType]() : sounds[breakSoundType]();
-
-        if (isWorking) {
-            thisSessionAddedSeconds = 0;
-            if (!startTimeStamp) {
-                const targetLimit = (timerMode === 'pomodoro-25') ? WORK_TIME_25 : WORK_TIME_50;
-                startTimeStamp = new Date(Date.now() - targetLimit * 1000);
-                actualWorkSeconds = targetLimit;
-            }
-
-            const endTime = new Date();
-            const fmt = (d) => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-            const mins = Math.round(actualWorkSeconds / 60) || 1;
-            const timeRangeStr = `${fmt(startTimeStamp)}~${fmt(endTime)} (${mins}m)`;
-            const todayStr = getTodayString();
-
-            historyData.unshift({ task: currentTaskName || '集中セッション', timeRange: timeRangeStr, review: '' });
-            localStorage.setItem('pomo_history', JSON.stringify(historyData));
-
-            let allLogs = JSON.parse(localStorage.getItem('pomo_all_logs') || '[]');
-            let dayGroup = allLogs.find(g => g.date === todayStr);
-            const logItem = { task: currentTaskName || '集中セッション', timeRange: timeRangeStr, minutes: mins };
-            if (dayGroup) dayGroup.items.unshift(logItem);
-            else allLogs.unshift({ date: todayStr, items: [logItem] });
-            localStorage.setItem('pomo_all_logs', JSON.stringify(allLogs));
-
-            localStorage.setItem('pomo_total_count', parseInt(localStorage.getItem('pomo_total_count') || '0') + 1);
-
-            renderHistory();
-            updateStatsDashboard();
-            historyAccordion.open = true;
-            taskInput.value = '';
-            currentTaskDisplay.classList.add('hidden');
-        }
-
-        isWorking = !isWorking;
-        baseTimeLeft = (timerMode === 'pomodoro-25') ? (isWorking ? WORK_TIME_25 : BREAK_TIME_25) : (isWorking ? WORK_TIME_50 : BREAK_TIME_50);
-        document.body.className = isWorking ? "mode-work" : "mode-break";
-        statusDisplay.textContent = isWorking ? "FOCUS" : "BREAK";
-
-        startTimeStamp = null;
-        segmentStartTime = null;
-        actualWorkSeconds = 0;
-        totalTimeAccumulatedBeforePause = 0;
-        addedSecondsInSegment = 0;
-        thisSessionAddedSeconds = 0;
-
-        updateDisplay(baseTimeLeft);
-        taskInput.disabled = false;
-        setTimeout(startTimer, delayMs + 500);
-    }
-
-    function recordStopwatch() {
-        if (timerMode !== 'stopwatch') return;
-        const elapsed = timerId ? (Date.now() - segmentStartTime) / 1000 : 0;
-        const total = baseTimeLeft + elapsed;
-        if (total < 1) return;
-
-        pauseTimer();
-        thisSessionAddedSeconds = 0;
-
-        const endTime = new Date();
-        const startTime = new Date(endTime.getTime() - total * 1000);
-        const fmt = (d) => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-        const m = Math.round(total / 60);
-        const s = Math.round(total % 60);
-        const timeRangeStr = `${fmt(startTime)}~${fmt(endTime)} (${m > 0 ? m + 'm ' : ''}${s}s)`;
-        const todayStr = getTodayString();
-        const taskName = taskInput.value || '計測セッション';
-
-        historyData.unshift({ task: taskName, timeRange: timeRangeStr, review: '' });
-        localStorage.setItem('pomo_history', JSON.stringify(historyData));
-
-        let allLogs = JSON.parse(localStorage.getItem('pomo_all_logs') || '[]');
-        let dayGroup = allLogs.find(g => g.date === todayStr);
-        const logItem = { task: taskName, timeRange: timeRangeStr, minutes: Math.round(total / 60) || 1 };
-        if (dayGroup) dayGroup.items.unshift(logItem);
-        else allLogs.unshift({ date: todayStr, items: [logItem] });
-        localStorage.setItem('pomo_all_logs', JSON.stringify(allLogs));
-
-        localStorage.setItem('pomo_total_count', parseInt(localStorage.getItem('pomo_total_count') || '0') + 1);
-
-        renderHistory();
-        baseTimeLeft = 0;
-        updateDisplay(0);
-        taskInput.value = '';
-        currentTaskDisplay.classList.add('hidden');
-        updateStatsDashboard();
-        historyAccordion.open = true;
-    }
-
-    function startTimer() {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        if (timerId !== null) return;
-
-        segmentStartTime = Date.now();
-        addedSecondsInSegment = 0;
-
-        if (timerMode === 'stopwatch') {
-            currentTaskName = taskInput.value || '計測中';
-            currentTaskDisplay.textContent = `⏱️ ${currentTaskName}`;
-            currentTaskDisplay.classList.remove('hidden');
-            if (!startTimeStamp) startTimeStamp = new Date();
-        } else if (isWorking) {
-            currentTaskName = taskInput.value || '集中中';
-            currentTaskDisplay.textContent = `🎯 ${currentTaskName}`;
-            currentTaskDisplay.classList.remove('hidden');
-            if (!startTimeStamp) startTimeStamp = new Date();
-        } else {
-            currentTaskDisplay.textContent = `☕ Break Time`;
-            currentTaskDisplay.classList.remove('hidden');
-        }
-
-        toggleBtn.textContent = "一時停止";
-
-        timerId = setInterval(() => {
-            const elapsed = (Date.now() - segmentStartTime) / 1000;
-            if ((timerMode !== 'stopwatch' && isWorking) || timerMode === 'stopwatch') {
-                const diff = elapsed - addedSecondsInSegment;
-                if (diff > 0) {
-                    addTotalWorkSeconds(diff);
-                    addedSecondsInSegment = elapsed;
-                    thisSessionAddedSeconds += diff;
-                    updateStatsDashboard();
-                }
-            }
-
-            if (timerMode === 'stopwatch') {
-                updateDisplay(baseTimeLeft + elapsed);
-            } else {
-                if (isWorking) actualWorkSeconds = totalTimeAccumulatedBeforePause + elapsed;
-                const currentLeft = baseTimeLeft - elapsed;
-                if (currentLeft > 0) {
-                    updateDisplay(currentLeft);
-                } else {
-                    clearInterval(timerId);
-                    timerId = null;
-                    switchMode();
-                }
-            }
-        }, 200);
-
-        taskInput.disabled = true;
-    }
-
-    function pauseTimer() {
-        if (timerId === null) return;
-        clearInterval(timerId);
-        timerId = null;
-        taskInput.disabled = false;
-
-        const elapsed = (Date.now() - segmentStartTime) / 1000;
-        if (timerMode === 'stopwatch') {
-            baseTimeLeft += elapsed;
-        } else {
-            baseTimeLeft -= elapsed;
-            if (isWorking) totalTimeAccumulatedBeforePause += elapsed;
-        }
-        addedSecondsInSegment = 0;
-        toggleBtn.textContent = "スタート";
-    }
-
-    function resetTimer() {
-        pauseTimer();
-        if (((timerMode !== 'stopwatch' && isWorking) || timerMode === 'stopwatch') && thisSessionAddedSeconds > 0) {
-            addTotalWorkSeconds(-thisSessionAddedSeconds);
-        }
-
-        isWorking = true;
-        baseTimeLeft = (timerMode === 'pomodoro-25') ? WORK_TIME_25 : (timerMode === 'pomodoro-50' ? WORK_TIME_50 : 0);
-        startTimeStamp = null;
-        segmentStartTime = null;
-        actualWorkSeconds = 0;
-        totalTimeAccumulatedBeforePause = 0;
-        addedSecondsInSegment = 0;
-        thisSessionAddedSeconds = 0;
-
-        document.body.className = "mode-work";
-        statusDisplay.textContent = timerMode === 'stopwatch' ? "STOPWATCH" : "FOCUS";
-        currentTaskDisplay.classList.add('hidden');
-        taskInput.disabled = false;
-        updateDisplay(baseTimeLeft);
-        toggleBtn.textContent = "スタート";
-        updateStatsDashboard();
-    }
-
-    window.changeTimerMode = function(mode) {
-        if (timerMode === mode) return;
-        resetTimer();
-        timerMode = mode;
-        document.querySelectorAll('.mode-pill').forEach(el => el.classList.remove('active'));
-
-        if (mode === 'pomodoro-25') {
-            document.getElementById('mode-25').classList.add('active');
-            taskInputLabel.textContent = "やることを設定";
-            statusDisplay.textContent = "FOCUS";
-            recordBtn.classList.add('hidden');
-        } else if (mode === 'pomodoro-50') {
-            document.getElementById('mode-50').classList.add('active');
-            taskInputLabel.textContent = "やることを設定";
-            statusDisplay.textContent = "FOCUS";
-            recordBtn.classList.add('hidden');
-        } else {
-            document.getElementById('mode-sw').classList.add('active');
-            taskInputLabel.textContent = "計測する作業";
-            statusDisplay.textContent = "STOPWATCH";
-            recordBtn.classList.remove('hidden');
-        }
-        resetTimer();
-    };
-
-    /* モーダル関連制御 */
-    const settingsModal = document.getElementById('settings-modal');
-    const logsModal = document.getElementById('logs-modal');
-
-    document.getElementById('open-settings-btn').addEventListener('click', () => settingsModal.classList.remove('hidden'));
-    document.getElementById('close-settings-btn').addEventListener('click', () => settingsModal.classList.add('hidden'));
-
-    document.getElementById('open-logs-btn').addEventListener('click', () => {
-        renderLogsModal();
-        logsModal.classList.remove('hidden');
-    });
-    document.getElementById('close-logs-btn').addEventListener('click', () => logsModal.classList.add('hidden'));
-
-    document.getElementById('danger-reset-btn').addEventListener('click', () => {
-        if (confirm("すべての達成ログと累計時間を初期化しますか？")) {
-            localStorage.clear();
-            location.reload();
-        }
-    });
-
-    toggleBtn.addEventListener('click', () => timerId ? pauseTimer() : startTimer());
-    recordBtn.addEventListener('click', recordStopwatch);
-    resetBtn.addEventListener('click', resetTimer);
-
-    // 初期データロード
-    const savedDate = localStorage.getItem('pomo_date');
-    const today = getTodayString();
-    if (savedDate !== today) {
-        historyData = [];
-        localStorage.setItem('pomo_date', today);
-        localStorage.setItem('pomo_history', JSON.stringify([]));
-    } else {
-        historyData = JSON.parse(localStorage.getItem('pomo_history') || '[]');
-    }
-
-    renderHistory();
-    updateStatsDashboard();
-    updateDisplay(baseTimeLeft);
-</script>
-</body>
-</html>
+    function playTo
