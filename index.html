@@ -16,7 +16,7 @@
             --panel-border: rgba(255, 255, 255, 0.14);
             --card-sub: rgba(255, 255, 255, 0.07);
             
-            --accent: #f97316; /* 集中: テラコッタオレンジ */
+            --accent: #f97316;
             --accent-subtle: rgba(249, 115, 22, 0.18);
             --text-main: #f8fafc;
             --text-muted: #cbd5e1;
@@ -27,7 +27,7 @@
         }
 
         body.mode-break {
-            --accent: #10b981; /* 休憩: セージグリーン */
+            --accent: #10b981;
             --accent-subtle: rgba(16, 185, 129, 0.18);
         }
 
@@ -97,7 +97,7 @@
             letter-spacing: 0.02em;
         }
 
-        /* 🌟 ミニYouTubeプレイヤーウィジェット (画面左下) */
+        /* YouTube プレイヤーウィジェット（画面左下） */
         .yt-widget {
             position: fixed;
             bottom: 24px;
@@ -110,7 +110,7 @@
             -webkit-backdrop-filter: blur(25px);
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
             z-index: 40;
-            width: 260px;
+            width: 250px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .yt-widget-header {
@@ -126,7 +126,7 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             cursor: pointer;
             padding: 2px 4px;
         }
@@ -135,11 +135,11 @@
         }
         .yt-screen-container {
             width: 100%;
-            height: 135px;
+            height: 130px;
             border-radius: 10px;
             overflow: hidden;
             background: #000;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             transition: height 0.3s ease, margin 0.3s ease;
         }
         .yt-widget.collapsed .yt-screen-container {
@@ -150,11 +150,6 @@
             width: 100%;
             height: 100%;
             border: none;
-        }
-        .yt-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
         }
         .yt-select {
             width: 100%;
@@ -170,34 +165,6 @@
         .yt-select option {
             background: #182234;
             color: #fff;
-        }
-        .yt-btns-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .yt-play-btn {
-            background: #ffffff;
-            color: #0b0f17;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: opacity 0.15s;
-        }
-        .yt-play-btn:hover {
-            opacity: 0.9;
-        }
-        .yt-volume-slider {
-            flex: 1;
-            height: 4px;
-            accent-color: #ffffff;
-            cursor: pointer;
         }
 
         /* メインタイマーカード */
@@ -215,7 +182,6 @@
             z-index: 10;
         }
 
-        /* ヘッダーエリア */
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -252,7 +218,6 @@
             border-color: rgba(255, 255, 255, 0.25);
         }
 
-        /* モード切り替えピル */
         .mode-pills {
             display: flex;
             background: rgba(0, 0, 0, 0.25);
@@ -279,7 +244,6 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* タイマーサークル */
         .timer-viewport {
             position: relative;
             width: 240px;
@@ -323,7 +287,6 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
-        /* 進行中タスク表示 */
         .active-task-pill {
             font-size: 0.82rem;
             color: var(--text-main);
@@ -341,7 +304,6 @@
             -webkit-backdrop-filter: blur(8px);
         }
 
-        /* 操作ボタン */
         .cta-row {
             display: flex;
             gap: 10px;
@@ -381,7 +343,6 @@
             background: rgba(255, 255, 255, 0.12);
         }
 
-        /* タスク入力欄 */
         .task-input-wrapper {
             margin-bottom: 24px;
             text-align: left;
@@ -413,7 +374,6 @@
             color: var(--text-faint);
         }
 
-        /* サマリースタッツ */
         .minimal-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -442,7 +402,6 @@
             color: var(--text-main);
         }
 
-        /* 本日の達成履歴 */
         .history-section {
             border-top: 1px solid var(--panel-border);
             padding-top: 14px;
@@ -521,7 +480,7 @@
             pointer-events: none;
         }
         .modal-box {
-            background: rgba(24, 34, 53, 0.75);
+            background: rgba(24, 34, 53, 0.85);
             border: 1px solid var(--panel-border);
             border-radius: 20px;
             padding: 26px;
@@ -639,273 +598,3 @@
 <div id="bg-layer-1" class="bg-layer"></div>
 <div id="bg-layer-2" class="bg-layer"></div>
 <div class="bg-overlay"></div>
-
-<!-- ヘッダーバー -->
-<div class="top-bar">
-    <div style="font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; color: var(--text-muted);">
-        FOCUS SPACE
-    </div>
-    <div id="location-badge" class="location-tag">Loading...</div>
-</div>
-
-<!-- 🌟 YouTube プレイヤーウィジェット（画面左下・折りたたみ可能） -->
-<div class="yt-widget" id="yt-widget">
-    <div class="yt-widget-header">
-        <span>📻 勉強用 BGM</span>
-        <button id="yt-collapse-btn" class="yt-toggle-visibility-btn" title="最小化/展開">▼ 隠す</button>
-    </div>
-    <div class="yt-screen-container">
-        <!-- YouTube IFrame はここに直接生成されます -->
-        <div id="yt-player-box"></div>
-    </div>
-    <div class="yt-controls">
-        <select id="bgm-playlist-select" class="yt-select">
-            <option value="jfKfPfyJRdk">🎧 Lofi Girl - 勉強集中ラジオ</option>
-            <option value="4xDzrJKXOOY">🎹 Relaxing Classical - ピアノ名曲</option>
-            <option value="5qap5aO4i9A">🌧️ Gentle Rain - 静寂の雨と雷</option>
-            <option value="Dx5qFachd3A">☕ Cozy Jazz Cafe - カフェの調べ</option>
-            <option value="q0BVR5jRX4Q">🌌 Synthwave Radio - 深夜の作業</option>
-        </select>
-        <div class="yt-btns-row">
-            <button id="bgm-toggle-btn" class="yt-play-btn">▶ 再生</button>
-            <input type="range" id="bgm-volume-slider" class="yt-volume-slider" min="0" max="100" value="50" title="音量">
-        </div>
-    </div>
-</div>
-
-<!-- メインタイマーカード -->
-<main class="app-container">
-    <div class="card-header">
-        <div id="datetime-display" class="current-clock">--:--:--</div>
-        <div class="header-actions">
-            <button class="icon-action-btn" id="open-logs-btn" title="過去の履歴">📊</button>
-            <button class="icon-action-btn" id="open-settings-btn" title="設定">⚙️</button>
-        </div>
-    </div>
-
-    <!-- モード切り替えピル -->
-    <div class="mode-pills">
-        <button id="mode-25" class="mode-pill active" onclick="changeTimerMode('pomodoro-25')">ポモドーロ 25m</button>
-        <button id="mode-50" class="mode-pill" onclick="changeTimerMode('pomodoro-50')">ポモドーロ 50m</button>
-        <button id="mode-sw" class="mode-pill" onclick="changeTimerMode('stopwatch')">ストップウォッチ</button>
-    </div>
-
-    <!-- タイマーサークル -->
-    <div class="timer-viewport">
-        <svg width="240" height="240">
-            <circle class="progress-meter-bg" stroke-width="4" fill="transparent" r="112" cx="120" cy="120"/>
-            <circle class="progress-meter-val" stroke-width="4" fill="transparent" r="112" cx="120" cy="120" stroke-linecap="round"/>
-        </svg>
-        <div class="timer-core-text">
-            <div id="status" class="timer-badge">FOCUS</div>
-            <div id="timer" class="timer-number">25:00</div>
-        </div>
-    </div>
-
-    <div id="current-task-display" class="active-task-pill hidden"></div>
-
-    <!-- 操作ボタン -->
-    <div class="cta-row">
-        <button id="toggleBtn" class="primary-action-btn">スタート</button>
-        <button id="recordBtn" class="secondary-action-btn hidden">完了記録</button>
-        <button id="resetBtn" class="secondary-action-btn">リセット</button>
-    </div>
-
-    <!-- タスク入力 -->
-    <div class="task-input-wrapper">
-        <label id="task-input-label" class="task-input-label">やることを設定</label>
-        <input type="text" id="task-input" class="task-input-field" placeholder="例: レポートの構成を作成する">
-    </div>
-
-    <!-- サマリースタッツ -->
-    <div class="minimal-stats">
-        <div class="stat-col">
-            <div class="stat-col-title">達成セッション</div>
-            <div id="stat-total-count" class="stat-col-val">0 回</div>
-        </div>
-        <div class="stat-col">
-            <div class="stat-col-title">合計作業時間</div>
-            <div id="stat-total-time" class="stat-col-val">0分 0秒</div>
-        </div>
-    </div>
-
-    <!-- 今日完了したタスク -->
-    <details id="history-accordion" class="history-section">
-        <summary id="history-count">本日の達成タスク (0)</summary>
-        <div id="history-list" class="history-list"></div>
-    </details>
-</main>
-
-<!-- 設定モーダル -->
-<div id="settings-modal" class="modal-layer hidden">
-    <div class="modal-box">
-        <h3>設定 <button id="close-settings-btn">&times;</button></h3>
-        
-        <div class="setting-group">
-            <label>アラーム音量</label>
-            <input type="range" id="alarm-volume-slider" style="width:100%; height:4px; accent-color:var(--text-main);" min="0" max="1" step="0.05" value="0.5">
-        </div>
-
-        <div class="setting-group">
-            <label>作業完了音</label>
-            <div class="setting-inline">
-                <select id="work-sound-select" class="setting-select">
-                    <option value="chime">チャイム (学校・駅風)</option>
-                    <option value="digital">デジタルビープ</option>
-                    <option value="melody">落ち着いたメロディ</option>
-                    <option value="simple">ソフトベル</option>
-                </select>
-                <button class="setting-test-btn" onclick="testSound('work')">試聴</button>
-            </div>
-        </div>
-
-        <div class="setting-group">
-            <label>休憩完了音</label>
-            <div class="setting-inline">
-                <select id="break-sound-select" class="setting-select">
-                    <option value="digital">デジタルビープ</option>
-                    <option value="chime">チャイム</option>
-                    <option value="melody">落ち着いたメロディ</option>
-                    <option value="simple">ソフトベル</option>
-                </select>
-                <button class="setting-test-btn" onclick="testSound('break')">試聴</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 過去全ログモーダル -->
-<div id="logs-modal" class="modal-layer hidden">
-    <div class="modal-box">
-        <h3>全セッションログ <button id="close-logs-btn">&times;</button></h3>
-        <div id="logs-container" class="logs-container"></div>
-        <button id="danger-reset-btn" class="danger-reset">全蓄積ログを初期化</button>
-    </div>
-</div>
-
-<!-- YouTube IFrame Player API -->
-<script src="https://www.youtube.com/iframe_api"></script>
-
-<script>
-    /* ====================================================
-       1. YouTube BGM コントローラー（描画保証付き）
-    ==================================================== */
-    let ytPlayer = null;
-    let isBgmPlaying = false;
-    const bgmToggleBtn = document.getElementById('bgm-toggle-btn');
-    const bgmSelect = document.getElementById('bgm-playlist-select');
-    const bgmVolumeSlider = document.getElementById('bgm-volume-slider');
-    const ytWidget = document.getElementById('yt-widget');
-    const ytCollapseBtn = document.getElementById('yt-collapse-btn');
-
-    // 折りたたみ制御
-    ytCollapseBtn.addEventListener('click', () => {
-        ytWidget.classList.toggle('collapsed');
-        if (ytWidget.classList.contains('collapsed')) {
-            ytCollapseBtn.textContent = '▲ 表示';
-        } else {
-            ytCollapseBtn.textContent = '▼ 隠す';
-        }
-    });
-
-    function onYouTubeIframeAPIReady() {
-        ytPlayer = new YT.Player('yt-player-box', {
-            videoId: bgmSelect.value,
-            playerVars: {
-                playsinline: 1,
-                controls: 1,
-                modestbranding: 1,
-                rel: 0
-            },
-            events: {
-                'onReady': onPlayerReady,
-                'onStateChange': onPlayerStateChange
-            }
-        });
-    }
-
-    function onPlayerReady(event) {
-        event.target.setVolume(parseInt(bgmVolumeSlider.value, 10));
-    }
-
-    function onPlayerStateChange(event) {
-        if (event.data === YT.PlayerState.PLAYING) {
-            isBgmPlaying = true;
-            bgmToggleBtn.textContent = '⏸ 停止';
-        } else {
-            isBgmPlaying = false;
-            bgmToggleBtn.textContent = '▶ 再生';
-        }
-    }
-
-    bgmToggleBtn.addEventListener('click', () => {
-        if (!ytPlayer || typeof ytPlayer.playVideo !== 'function') return;
-        if (isBgmPlaying) {
-            ytPlayer.pauseVideo();
-        } else {
-            ytPlayer.playVideo();
-        }
-    });
-
-    bgmSelect.addEventListener('change', (e) => {
-        if (!ytPlayer || typeof ytPlayer.loadVideoById !== 'function') return;
-        ytPlayer.loadVideoById(e.target.value);
-        ytPlayer.playVideo();
-    });
-
-    bgmVolumeSlider.addEventListener('input', (e) => {
-        if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-            ytPlayer.setVolume(e.target.value);
-        }
-    });
-
-    /* ====================================================
-       2. 背景画像スライドショー
-    ==================================================== */
-    const bgData = [
-        { url: "https://images.unsplash.com/photo-1505832018823-50331d70d237?q=80&w=2108&auto=format&fit=crop", name: "グレンフィナン高架橋, スコットランド" },
-        { url: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=1559&auto=format&fit=crop", name: "セリャラントスフォス, アイスランド" },
-        { url: "https://images.unsplash.com/photo-1511300636408-a63a89df3482?q=80&w=2070&auto=format&fit=crop", name: "ヴェストラホルン, アイスランド" },
-        { url: "https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=1920&q=80", name: "ツェルマット, スイス" },
-        { url: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?q=80&w=2070&auto=format&fit=crop", name: "ジアウ峠, イタリア" },
-        { url: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=2070&auto=format&fit=crop", name: "ブライエス湖, イタリア" }
-    ];
-
-    let currentBgIndex = Math.floor(Math.random() * bgData.length);
-    let activeLayer = 1;
-    const layer1 = document.getElementById('bg-layer-1');
-    const layer2 = document.getElementById('bg-layer-2');
-    const locationBadge = document.getElementById('location-badge');
-
-    layer1.style.backgroundImage = `url('${bgData[currentBgIndex].url}')`;
-    layer1.style.opacity = 1;
-    layer2.style.opacity = 0;
-    locationBadge.textContent = bgData[currentBgIndex].name;
-
-    function changeBackground() {
-        currentBgIndex = (currentBgIndex + 1) % bgData.length;
-        const nextImg = `url('${bgData[currentBgIndex].url}')`;
-        const nextName = bgData[currentBgIndex].name;
-        
-        locationBadge.style.opacity = '0.3';
-        setTimeout(() => {
-            locationBadge.textContent = nextName;
-            locationBadge.style.opacity = '1';
-        }, 800);
-
-        if (activeLayer === 1) {
-            layer2.style.backgroundImage = nextImg; layer2.style.opacity = '1'; layer1.style.opacity = '0'; activeLayer = 2;
-        } else {
-            layer1.style.backgroundImage = nextImg; layer1.style.opacity = '1'; layer2.style.opacity = '0'; activeLayer = 1;
-        }
-    }
-    setInterval(changeBackground, 120000);
-
-    /* ====================================================
-       3. Web Audio アラーム音
-    ==================================================== */
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const alarmGain = audioCtx.createGain();
-    alarmGain.connect(audioCtx.destination);
-
-    function playTo
